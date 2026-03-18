@@ -1,6 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace cebe\markdown\tests;
+
 use cebe\markdown\MarkdownExtra;
 
 /**
@@ -9,16 +12,16 @@ use cebe\markdown\MarkdownExtra;
  */
 class MarkdownExtraTest extends BaseMarkdownTest
 {
-	public function createMarkdown()
-	{
-		return new MarkdownExtra();
-	}
+    public function createMarkdown()
+    {
+        return new MarkdownExtra();
+    }
 
-	public function getDataPaths()
-	{
-		return [
-			'markdown-data' => __DIR__ . '/markdown-data',
-			'extra-data' => __DIR__ . '/extra-data',
-		];
-	}
+    public function getDataPaths()
+    {
+        return [
+            'markdown-data' => __DIR__ . '/markdown-data',
+            'extra-data' => __DIR__ . '/extra-data',
+        ];
+    }
 }

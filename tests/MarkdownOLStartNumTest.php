@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2014 Carsten Brandt
  * @license https://github.com/cebe/markdown/blob/master/LICENSE
@@ -16,17 +18,17 @@ use cebe\markdown\Markdown;
  */
 class MarkdownOLStartNumTest extends BaseMarkdownTest
 {
-	public function createMarkdown()
-	{
-		$markdown = new Markdown();
-		$markdown->keepListStartNumber = true;
-		return $markdown;
-	}
+    public function createMarkdown()
+    {
+        $markdown = new Markdown();
+        $markdown->keepListStartNumber = true;
+        return $markdown;
+    }
 
-	public function getDataPaths()
-	{
-		return [
-			'markdown-data' => __DIR__ . '/markdown-ol-start-num-data',
-		];
-	}
+    public function getDataPaths()
+    {
+        return [
+            'markdown-data' => __DIR__ . '/markdown-ol-start-num-data',
+        ];
+    }
 }
