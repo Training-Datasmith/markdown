@@ -15,7 +15,7 @@ trait TableTrait
 	/**
 	 * identify a line as the beginning of a table block.
 	 */
-	protected function identifyTable($line, $lines, $current)
+	protected function identifyTable($line, array $lines, $current)
 	{
 		return strpos($line, '|') !== false && isset($lines[$current + 1])
 			&& preg_match('~^\\s*\\|?(\\s*:?-[\\-\\s]*:?\\s*\\|?)*\\s*$~', $lines[$current + 1])
@@ -26,7 +26,7 @@ trait TableTrait
 	/**
 	 * Consume lines for a table
 	 */
-	protected function consumeTable($lines, $current)
+	protected function consumeTable(array $lines, $current)
 	{
 		// consume until newline
 
@@ -97,7 +97,7 @@ trait TableTrait
 	/**
 	 * render a table block
 	 */
-	protected function renderTable($block)
+	protected function renderTable(array $block)
 	{
 		$head = '';
 		$body = '';

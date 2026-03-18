@@ -32,7 +32,7 @@ trait FencedCodeTrait
 	/**
 	 * Consume lines for a fenced code block
 	 */
-	protected function consumeFencedCode($lines, $current)
+	protected function consumeFencedCode(array $lines, $current)
 	{
 		$line = ltrim($lines[$current]);
 		$fence = substr($line, 0, $pos = strrpos($line, $line[0]) + 1);

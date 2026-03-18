@@ -103,7 +103,7 @@ class MarkdownExtra extends Markdown
 	/**
 	 * Consume lines for a fenced code block
 	 */
-	protected function consumeFencedCode($lines, $current)
+	protected function consumeFencedCode(array $lines, $current)
 	{
 		// consume until ```
 		$block = [
@@ -151,7 +151,7 @@ class MarkdownExtra extends Markdown
 		return "<$tag$attributes>" . rtrim($this->renderAbsy($block['content']), "# \t") . "</$tag>\n";
 	}
 
-	protected function renderAttributes($block)
+	protected function renderAttributes(array $block)
 	{
 		$html = [];
 		if (isset($block['attributes'])) {

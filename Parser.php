@@ -118,7 +118,7 @@ abstract class Parser
 		if ($this->_blockTypes === null) {
 			// detect block types via "identify" functions
 			$reflection = new \ReflectionClass($this);
-			$this->_blockTypes = array_filter(array_map(function($method) {
+			$this->_blockTypes = array_filter(array_map(function(\ReflectionMethod $method) {
 				$name = $method->getName();
 				return strncmp($name, 'identify', 8) === 0 ? strtolower(substr($name, 8)) : false;
 			}, $reflection->getMethods(ReflectionMethod::IS_PROTECTED)));
@@ -129,13 +129,12 @@ abstract class Parser
 	}
 
 	/**
-	 * Given a set of lines and an index of a current line it uses the registed block types to
-	 * detect the type of this line.
-	 * @param array $lines
-	 * @param integer $current
-	 * @return string name of the block type in lower case
-	 */
-	protected function detectLineType($lines, $current)
+     * Given a set of lines and an index of a current line it uses the registed block types to
+     * detect the type of this line.
+     * @param integer $current
+     * @return string name of the block type in lower case
+     */
+    protected function detectLineType(array $lines, $current)
 	{
 		$line = $lines[$current];
 		$blockTypes = $this->blockTypes();
@@ -152,7 +151,7 @@ abstract class Parser
 	 * Parse block elements by calling `detectLineType()` to identify them
 	 * and call consume function afterwards.
 	 */
-	protected function parseBlocks($lines)
+	protected function parseBlocks(array $lines)
 	{
 		if ($this->_depth >= $this->maximumNestingLevel) {
 			// maximum depth is reached, do not parse input
@@ -213,7 +212,7 @@ abstract class Parser
 	 * @param $current
 	 * @return array
 	 */
-	protected function consumeParagraph($lines, $current)
+	protected function consumeParagraph(array $lines, $current)
 	{
 		// consume until newline
 		$content = [];
@@ -237,7 +236,7 @@ abstract class Parser
 	 * @param $block
 	 * @return string
 	 */
-	protected function renderParagraph($block)
+	protected function renderParagraph(array $block)
 	{
 		return '<p>' . $this->renderAbsy($block['content']) . "</p>\n";
 	}

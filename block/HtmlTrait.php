@@ -47,7 +47,7 @@ trait HtmlTrait
 	/**
 	 * identify a line as the beginning of a HTML block.
 	 */
-	protected function identifyHtml($line, $lines, $current)
+	protected function identifyHtml($line, array $lines, $current)
 	{
 		if ($line[0] !== '<' || isset($line[1]) && $line[1] == ' ') {
 			return false; // no html tag
@@ -76,7 +76,7 @@ trait HtmlTrait
 	/**
 	 * Consume lines for an HTML block
 	 */
-	protected function consumeHtml($lines, $current)
+	protected function consumeHtml(array $lines, $current)
 	{
 		$content = [];
 		if (strncmp($lines[$current], '<!--', 4) === 0) { // html comment
@@ -112,7 +112,7 @@ trait HtmlTrait
 	/**
 	 * Renders an HTML block
 	 */
-	protected function renderHtml($block)
+	protected function renderHtml(array $block)
 	{
 		return $block['content'] . "\n";
 	}
@@ -126,9 +126,8 @@ trait HtmlTrait
 		// html entities e.g. &copy; &#169; &#x00A9;
 		if (preg_match('/^&#?[\w\d]+;/', $text, $matches)) {
 			return [['inlineHtml', $matches[0]], strlen($matches[0])];
-		} else {
-			return [['text', '&amp;'], 1];
 		}
+        return [['text', '&amp;'], 1];
 	}
 
 	/**
@@ -145,15 +144,17 @@ trait HtmlTrait
 	 */
 	protected function parseInlineHtml($text)
 	{
-		if (strpos($text, '>') !== false) {
-			if (preg_match('~^</?(\w+\d?)( .*?)?>~s', $text, $matches)) {
-				// HTML tags
-				return [['inlineHtml', $matches[0]], strlen($matches[0])];
-			} elseif (preg_match('~^<!--.*?-->~s', $text, $matches)) {
-				// HTML comments
-				return [['inlineHtml', $matches[0]], strlen($matches[0])];
-			}
+		if (strpos($text, '>') === false) {
+			return [['text', '&lt;'], 1];
 		}
+        if (preg_match('~^</?(\w+\d?)( .*?)?>~s', $text, $matches)) {
+            // HTML tags
+            return [['inlineHtml', $matches[0]], strlen($matches[0])];
+        }
+        if (preg_match('~^<!--.*?-->~s', $text, $matches)) {
+            // HTML comments
+            return [['inlineHtml', $matches[0]], strlen($matches[0])];
+        }
 		return [['text', '&lt;'], 1];
 	}
 

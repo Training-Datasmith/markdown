@@ -107,8 +107,7 @@ class GithubMarkdown extends Markdown
 		if ($this->enableNewlines) {
 			$br = $this->html5 ? "<br>\n" : "<br />\n";
 			return strtr($text[1], ["  \n" => $br, "\n" => $br]);
-		} else {
-			return parent::renderText($text);
 		}
+        return parent::renderText($text);
 	}
 }

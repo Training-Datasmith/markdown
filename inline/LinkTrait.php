@@ -60,7 +60,7 @@ trait LinkTrait
 	 * Parses a link indicated by `[`.
 	 * @marker [
 	 */
-	protected function parseLink($markdown)
+	protected function parseLink(array $markdown)
 	{
 		if (!in_array('parseLink', array_slice($this->context, 1)) && ($parts = $this->parseLinkOrImage($markdown)) !== false) {
 			list($text, $url, $title, $offset, $key) = $parts;
@@ -75,23 +75,22 @@ trait LinkTrait
 				],
 				$offset
 			];
-		} else {
-			// remove all starting [ markers to avoid next one to be parsed as link
-			$result = '[';
-			$i = 1;
-			while (isset($markdown[$i]) && $markdown[$i] === '[') {
+		}
+        // remove all starting [ markers to avoid next one to be parsed as link
+        $result = '[';
+        $i = 1;
+        while (isset($markdown[$i]) && $markdown[$i] === '[') {
 				$result .= '[';
 				$i++;
 			}
-			return [['text', $result], $i];
-		}
+        return [['text', $result], $i];
 	}
 
 	/**
 	 * Parses an image indicated by `![`.
 	 * @marker ![
 	 */
-	protected function parseImage($markdown)
+	protected function parseImage(array $markdown)
 	{
 		if (($parts = $this->parseLinkOrImage(substr($markdown, 1))) !== false) {
 			list($text, $url, $title, $offset, $key) = $parts;
@@ -107,16 +106,15 @@ trait LinkTrait
 				],
 				$offset + 1
 			];
-		} else {
-			// remove all starting [ markers to avoid next one to be parsed as link
-			$result = '!';
-			$i = 1;
-			while (isset($markdown[$i]) && $markdown[$i] === '[') {
+		}
+        // remove all starting [ markers to avoid next one to be parsed as link
+        $result = '!';
+        $i = 1;
+        while (isset($markdown[$i]) && $markdown[$i] === '[') {
 				$result .= '[';
 				$i++;
 			}
-			return [['text', $result], $i];
-		}
+        return [['text', $result], $i];
 	}
 
 	protected function parseLinkOrImage($markdown)
@@ -133,30 +131,31 @@ trait LinkTrait
 					^\(\s*(((?>[^\s()]+)|(?R))*)(\s+"(.*?)")?\s*\)
 				)/x
 REGEXP;
-			if (preg_match($pattern, $markdown, $refMatches)) {
-				// inline link
-				return [
+            if (preg_match($pattern, $markdown, $refMatches)) {
+                // inline link
+                return [
 					$text,
 					isset($refMatches[2]) ? $this->replaceEscape($refMatches[2]) : '', // url
 					empty($refMatches[5]) ? null: $refMatches[5], // title
 					$offset + strlen($refMatches[0]), // offset
 					null, // reference key
 				];
-			} elseif (preg_match('/^([ \n]?\[(.*?)\])?/s', $markdown, $refMatches)) {
-				// reference style link
-				if (empty($refMatches[2])) {
+            }
+			if (preg_match('/^([ \n]?\[(.*?)\])?/s', $markdown, $refMatches)) {
+                // reference style link
+                if (empty($refMatches[2])) {
 					$key = strtolower($text);
 				} else {
 					$key = strtolower($refMatches[2]);
 				}
-				return [
+                return [
 					$text,
 					null, // url
 					null, // title
 					$offset + strlen($refMatches[0]), // offset
 					$key,
 				];
-			}
+            }
 		}
 		return false;
 	}
@@ -169,19 +168,21 @@ REGEXP;
 	{
 		if (strpos($text, '>') !== false) {
 			if (!in_array('parseLink', $this->context)) { // do not allow links in links
-				if (preg_match('/^<([^\s>]*?@[^\s]*?\.\w+?)>/', $text, $matches)) {
-					// email address
-					return [
+                if (preg_match('/^<([^\s>]*?@[^\s]*?\.\w+?)>/', $text, $matches)) {
+                    // email address
+                    return [
 						['email', $this->replaceEscape($matches[1])],
 						strlen($matches[0])
 					];
-				} elseif (preg_match('/^<([a-z]{3,}:\/\/[^\s]+?)>/', $text, $matches)) {
-					// URL
-					return [
+                }
+                // do not allow links in links
+				if (preg_match('/^<([a-z]{3,}:\/\/[^\s]+?)>/', $text, $matches)) {
+                    // URL
+                    return [
 						['url', $this->replaceEscape($matches[1])],
 						strlen($matches[0])
 					];
-				}
+                }
 			}
 			// try inline HTML if it was neither a URL nor email if HtmlTrait is included.
 			if (method_exists($this, 'parseInlineHtml')) {
@@ -260,7 +261,7 @@ REGEXP;
 	/**
 	 * Consume link references
 	 */
-	protected function consumeReference($lines, $current)
+	protected function consumeReference(array $lines, $current)
 	{
 		while (isset($lines[$current]) && preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\(\'"](.+?)[\)\'"])?\s*$/', $lines[$current], $matches)) {
 			$label = strtolower($matches[1]);

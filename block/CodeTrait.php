@@ -24,7 +24,7 @@ trait CodeTrait
 	/**
 	 * Consume lines for a code block element
 	 */
-	protected function consumeCode($lines, $current)
+	protected function consumeCode(array $lines, $current)
 	{
 		// consume until newline
 
@@ -58,7 +58,7 @@ trait CodeTrait
 	/**
 	 * Renders a code block
 	 */
-	protected function renderCode($block)
+	protected function renderCode(array $block)
 	{
 		$class = isset($block['language']) ? ' class="language-' . $block['language'] . '"' : '';
 		return "<pre><code$class>" . htmlspecialchars($block['content'] . "\n", ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8') . "</code></pre>\n";

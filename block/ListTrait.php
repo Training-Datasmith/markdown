@@ -68,7 +68,7 @@ trait ListTrait
 		return $this->consumeList($lines, $current, $block, 'ul');
 	}
 
-	private function consumeList($lines, $current, $block, $type)
+	private function consumeList(array $lines, $current, array $block, $type)
 	{
 		$item = 0;
 		$indent = '';
@@ -165,7 +165,7 @@ trait ListTrait
 	/**
 	 * Renders a list
 	 */
-	protected function renderList($block)
+	protected function renderList(array $block)
 	{
 		$type = $block['list'];
 
@@ -175,7 +175,7 @@ trait ListTrait
 			$output = "<$type>\n";
 		}
 
-		foreach ($block['items'] as $item => $itemLines) {
+		foreach ($block['items'] as $itemLines) {
 			$output .= '<li>' . $this->renderAbsy($itemLines). "</li>\n";
 		}
 		return $output . "</$type>\n";
@@ -187,7 +187,7 @@ trait ListTrait
 	 * @param array $attributes the attribute name-value pairs.
 	 * @return string
 	 */
-	private function generateHtmlAttributes($attributes)
+	private function generateHtmlAttributes(array $attributes)
 	{
 		foreach ($attributes as $name => $value) {
 			$attributes[$name] = "$name=\"$value\"";

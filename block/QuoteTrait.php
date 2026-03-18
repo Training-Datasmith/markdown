@@ -23,7 +23,7 @@ trait QuoteTrait
 	/**
 	 * Consume lines for a blockquote element
 	 */
-	protected function consumeQuote($lines, $current)
+	protected function consumeQuote(array $lines, $current)
 	{
 		// consume until newline
 		$content = [];
@@ -53,7 +53,7 @@ trait QuoteTrait
 	/**
 	 * Renders a blockquote
 	 */
-	protected function renderQuote($block)
+	protected function renderQuote(array $block)
 	{
 		return '<blockquote>' . $this->renderAbsy($block['content']) . "</blockquote>\n";
 	}
