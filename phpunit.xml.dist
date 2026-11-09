@@ -5,23 +5,21 @@
 		convertNoticesToExceptions="true"
 		convertWarningsToExceptions="true"
 		stopOnFailure="false">
+		<php>
+			<ini name="error_reporting" value="-1"/>
+			<ini name="display_errors" value="1"/>
+		</php>
 		<testsuites>
 			<testsuite name="Markdown Test Suite">
-				<file>./tests/ParserTest.php</file>
+				<file>./tests/Parser_Test.php</file>
 
-				<file>./tests/MarkdownTest.php</file>
-				<file>./tests/MarkdownOLStartNumTest.php</file>
+				<file>./tests/Markdown_Test.php</file>
+				<file>./tests/Markdown_OL_Start_Num_Test.php</file>
 				
-				<file>./tests/GithubMarkdownTest.php</file>
+				<file>./tests/Github_Markdown_Test.php</file>
 				
-				<file>./tests/MarkdownExtraTest.php</file>
+				<file>./tests/Markdown_Extra_Test.php</file>
 			</testsuite>
 		</testsuites>
-		<filter>
-			<blacklist>
-				<directory>./vendor</directory>
-				<directory>./tests</directory>
-			</blacklist>
-		</filter>
 </phpunit>
 

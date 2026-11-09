@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2014 Carsten Brandt
  * @license https://github.com/cebe/markdown/blob/master/LICENSE
@@ -14,14 +12,14 @@ namespace cebe\markdown\block;
  *
  * automatically included 4 space indented code blocks
  */
-trait FencedCodeTrait
+trait Fenced_Code_Trait
 {
-    use CodeTrait;
+    use Code_Trait;
 
     /**
      * identify a line as the beginning of a fenced code block.
      */
-    protected function identifyFencedCode($line)
+    protected function identify_Fenced_Code($line)
     {
         return ($line[0] === '`' && strncmp($line, '```', 3) === 0) ||
                ($line[0] === '~' && strncmp($line, '~~~', 3) === 0) ||
@@ -34,7 +32,7 @@ trait FencedCodeTrait
     /**
      * Consume lines for a fenced code block
      */
-    protected function consumeFencedCode(array $lines, $current)
+    protected function consume_Fenced_Code(array $lines, $current)
     {
         $line = ltrim($lines[$current]);
         $fence = substr($line, 0, $pos = strrpos($line, $line[0]) + 1);

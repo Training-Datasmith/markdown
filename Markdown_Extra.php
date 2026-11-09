@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 namespace cebe\markdown;
 
 // work around https://github.com/facebook/hhvm/issues/1120
@@ -14,11 +11,11 @@ defined('ENT_HTML401') || define('ENT_HTML401', 0);
  * @license https://github.com/cebe/markdown/blob/master/LICENSE
  * @link https://github.com/cebe/markdown#readme
  */
-class MarkdownExtra extends Markdown
+class Markdown_Extra extends Markdown
 {
     // include block element parsing using traits
-    use block\TableTrait;
-    use block\FencedCodeTrait;
+    use block\Table_Trait;
+    use block\Fenced_Code_Trait;
 
     // include inline element parsing using traits
     // TODO
@@ -27,12 +24,12 @@ class MarkdownExtra extends Markdown
      * @var bool whether special attributes on code blocks should be applied on the `<pre>` element.
      * The default behavior is to put them on the `<code>` element.
      */
-    public $codeAttributesOnPre = false;
+    public $code_Attributes_On_Pre = false;
 
     /**
      * @inheritDoc
      */
-    protected $escapeCharacters = [
+    protected $escape_Characters = [
         // from Markdown
         '\\', // backslash
         '`', // backtick
@@ -47,12 +44,12 @@ class MarkdownExtra extends Markdown
         '.', // dot
         '!', // exclamation mark
         '<', '>',
-        // added by MarkdownExtra
+        // added by Markdown_Extra
         ':', // colon
         '|', // pipe
     ];
 
-    private $_specialAttributesRegex = '\{(([#\.][A-z0-9-_]+\s*)+)\}';
+    private $_special_Attributes_Regex = '\{(([#\.][A-z0-9-_]+\s*)+)\}';
 
     // TODO allow HTML intended 3 spaces
 
@@ -66,21 +63,21 @@ class MarkdownExtra extends Markdown
 
     // block parsing
 
-    protected function identifyReference($line)
+    protected function identify_Reference($line)
     {
-        return ($line[0] === ' ' || $line[0] === '[') && preg_match('/^ {0,3}\[[^\[](.*?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*('.$this->_specialAttributesRegex.')?\s*$/', $line);
+        return ($line[0] === ' ' || $line[0] === '[') && preg_match('/^ {0,3}\[[^\[](.*?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*('.$this->_special_Attributes_Regex.')?\s*$/', $line);
     }
 
     /**
      * Consume link references
      */
-    protected function consumeReference($lines, $current)
+    protected function consume_Reference($lines, $current)
     {
-        while (isset($lines[$current]) && preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\(\'"](.+?)[\)\'"])?\s*('.$this->_specialAttributesRegex.')?\s*$/', $lines[$current], $matches)) {
+        while (isset($lines[$current]) && preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\(\'"](.+?)[\)\'"])?\s*('.$this->_special_Attributes_Regex.')?\s*$/', $lines[$current], $matches)) {
             $label = strtolower($matches[1]);
 
             $this->references[$label] = [
-                'url' => $this->replaceEscape($matches[2]),
+                'url' => $this->replace_Escape($matches[2]),
             ];
             if (isset($matches[3])) {
                 $this->references[$label]['title'] = $matches[3];
@@ -102,7 +99,7 @@ class MarkdownExtra extends Markdown
     /**
      * Consume lines for a fenced code block
      */
-    protected function consumeFencedCode(array $lines, $current)
+    protected function consume_Fenced_Code(array $lines, $current)
     {
         // consume until ```
         $block = [
@@ -126,10 +123,10 @@ class MarkdownExtra extends Markdown
         return [$block, $i];
     }
 
-    protected function renderCode($block)
+    protected function render_Code($block)
     {
-        $attributes = $this->renderAttributes($block);
-        return ($this->codeAttributesOnPre ? "<pre$attributes><code>" : "<pre><code$attributes>")
+        $attributes = $this->render_Attributes($block);
+        return ($this->code_Attributes_On_Pre ? "<pre$attributes><code>" : "<pre><code$attributes>")
             . htmlspecialchars($block['content'] . "\n", ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . "</code></pre>\n";
     }
@@ -137,20 +134,20 @@ class MarkdownExtra extends Markdown
     /**
      * Renders a headline
      */
-    protected function renderHeadline($block)
+    protected function render_Headline($block)
     {
         foreach ($block['content'] as $i => $element) {
-            if ($element[0] === 'specialAttributes') {
+            if ($element[0] === 'special_Attributes') {
                 unset($block['content'][$i]);
                 $block['attributes'] = $element[1];
             }
         }
         $tag = 'h' . $block['level'];
-        $attributes = $this->renderAttributes($block);
-        return "<$tag$attributes>" . rtrim($this->renderAbsy($block['content']), "# \t") . "</$tag>\n";
+        $attributes = $this->render_Attributes($block);
+        return "<$tag$attributes>" . rtrim($this->render_Absy($block['content']), "# \t") . "</$tag>\n";
     }
 
-    protected function renderAttributes(array $block)
+    protected function render_Attributes(array $block)
     {
         $html = [];
         if (isset($block['attributes'])) {
@@ -180,28 +177,28 @@ class MarkdownExtra extends Markdown
     /**
      * @marker {
      */
-    protected function parseSpecialAttributes($text)
+    protected function parse_Special_Attributes($text)
     {
-        if (preg_match("~$this->_specialAttributesRegex~", $text, $matches)) {
-            return [['specialAttributes', $matches[1]], strlen($matches[0])];
+        if (preg_match("~$this->_special_Attributes_Regex~", $text, $matches)) {
+            return [['special_Attributes', $matches[1]], strlen($matches[0])];
         }
         return [['text', '{'], 1];
     }
 
-    protected function renderSpecialAttributes($block)
+    protected function render_Special_Attributes($block)
     {
         return '{' . $block[1] . '}';
     }
 
-    protected function parseInline($text)
+    protected function parse_Inline($text)
     {
-        $elements = parent::parseInline($text);
+        $elements = parent::parse_Inline($text);
         // merge special attribute elements to links and images as they are not part of the final absy later
         $relatedElement = null;
         foreach ($elements as $i => $element) {
             if ($element[0] === 'link' || $element[0] === 'image') {
                 $relatedElement = $i;
-            } elseif ($element[0] === 'specialAttributes') {
+            } elseif ($element[0] === 'special_Attributes') {
                 if ($relatedElement !== null) {
                     $elements[$relatedElement]['attributes'] = $element[1];
                     unset($elements[$i]);
@@ -214,37 +211,37 @@ class MarkdownExtra extends Markdown
         return $elements;
     }
 
-    protected function renderLink($block)
+    protected function render_Link($block)
     {
         if (isset($block['refkey'])) {
-            if (($ref = $this->lookupReference($block['refkey'])) !== false) {
+            if (($ref = $this->lookup_Reference($block['refkey'])) !== false) {
                 $block = array_merge($block, $ref);
             } else {
                 if (strncmp($block['orig'], '[', 1) === 0) {
-                    return '[' . $this->renderAbsy($this->parseInline(substr($block['orig'], 1)));
+                    return '[' . $this->render_Absy($this->parse_Inline(substr($block['orig'], 1)));
                 }
                 return $block['orig'];
             }
         }
-        $attributes = $this->renderAttributes($block);
+        $attributes = $this->render_Attributes($block);
         return '<a href="' . htmlspecialchars($block['url'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
             . (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"')
-            . $attributes . '>' . $this->renderAbsy($block['text']) . '</a>';
+            . $attributes . '>' . $this->render_Absy($block['text']) . '</a>';
     }
 
-    protected function renderImage($block)
+    protected function render_Image($block)
     {
         if (isset($block['refkey'])) {
-            if (($ref = $this->lookupReference($block['refkey'])) !== false) {
+            if (($ref = $this->lookup_Reference($block['refkey'])) !== false) {
                 $block = array_merge($block, $ref);
             } else {
                 if (strncmp($block['orig'], '![', 2) === 0) {
-                    return '![' . $this->renderAbsy($this->parseInline(substr($block['orig'], 2)));
+                    return '![' . $this->render_Absy($this->parse_Inline(substr($block['orig'], 2)));
                 }
                 return $block['orig'];
             }
         }
-        $attributes = $this->renderAttributes($block);
+        $attributes = $this->render_Attributes($block);
         return '<img src="' . htmlspecialchars($block['url'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
             . ' alt="' . htmlspecialchars($block['text'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"'
             . (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"')

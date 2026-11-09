@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2014 Carsten Brandt
  * @license https://github.com/cebe/markdown/blob/master/LICENSE
@@ -12,14 +10,14 @@ namespace cebe\markdown\inline;
 /**
  * Adds inline emphasizes and strong elements
  */
-trait EmphStrongTrait
+trait Emph_Strong_Trait
 {
     /**
      * Parses emphasized and strong elements.
      * @marker _
      * @marker *
      */
-    protected function parseEmphStrong($text)
+    protected function parse_Emph_Strong($text)
     {
         $marker = $text[0];
 
@@ -42,7 +40,7 @@ trait EmphStrongTrait
                 return [
                     [
                         'strong',
-                        $this->parseInline($matches[1]),
+                        $this->parse_Inline($matches[1]),
                     ],
                     strlen($matches[0]),
                 ];
@@ -65,7 +63,7 @@ trait EmphStrongTrait
                 return [
                     [
                         'emph',
-                        $this->parseInline($matches[1]),
+                        $this->parse_Inline($matches[1]),
                     ],
                     strlen($matches[0]),
                 ];
@@ -74,16 +72,16 @@ trait EmphStrongTrait
         return [['text', $text[0]], 1];
     }
 
-    protected function renderStrong($block)
+    protected function render_Strong($block)
     {
-        return '<strong>' . $this->renderAbsy($block[1]) . '</strong>';
+        return '<strong>' . $this->render_Absy($block[1]) . '</strong>';
     }
 
-    protected function renderEmph($block)
+    protected function render_Emph($block)
     {
-        return '<em>' . $this->renderAbsy($block[1]) . '</em>';
+        return '<em>' . $this->render_Absy($block[1]) . '</em>';
     }
 
-    abstract protected function parseInline($text);
-    abstract protected function renderAbsy($blocks);
+    abstract protected function parse_Inline($text);
+    abstract protected function render_Absy($blocks);
 }

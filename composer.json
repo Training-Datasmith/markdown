@@ -17,13 +17,19 @@
 		"issues": "https://github.com/cebe/markdown/issues",
 		"source": "https://github.com/cebe/markdown"
 	},
+	"repositories": [
+		{
+			"type": "composer",
+			"url": "https://raw.githubusercontent.com/Training-Datasmith/composer-index/remote-test-2026-11-09",
+			"canonical": false
+		}
+	],
 	"require": {
 		"php": ">=5.4.0",
 		"lib-pcre": "*"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "4.1.*",
-		"facebook/xhprof": "*@dev",
+		"phpunit/phpunit": "^8.5.52",
 		"cebe/indent": "*"
 	},
 	"autoload": {
@@ -34,6 +40,11 @@
 	"bin": [
 		"bin/markdown"
 	],
+	"scripts": {
+		"test": "bash scripts/system-test.sh",
+		"check-pins": "php scripts/check-cluster-pins.php",
+		"check-rename": "php scripts/check-rename.php"
+	},
 	"extra": {
 		"branch-alias": {
 			"dev-master": "1.2.x-dev"

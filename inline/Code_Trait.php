@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2014 Carsten Brandt
  * @license https://github.com/cebe/markdown/blob/master/LICENSE
@@ -12,19 +10,19 @@ namespace cebe\markdown\inline;
 /**
  * Adds inline code elements
  */
-trait CodeTrait
+trait Code_Trait
 {
     /**
      * Parses an inline code span `` ` ``.
      * @marker `
      */
-    protected function parseInlineCode($text)
+    protected function parse_Inline_Code($text)
     {
         if (preg_match('/^(``+)\s(.+?)\s\1/s', $text, $matches)) {
             // code with enclosed backtick
             return [
                 [
-                    'inlineCode',
+                    'inline_Code',
                     $matches[2],
                 ],
                 strlen($matches[0]),
@@ -33,7 +31,7 @@ trait CodeTrait
         if (preg_match('/^`(.+?)`/s', $text, $matches)) {
             return [
                 [
-                    'inlineCode',
+                    'inline_Code',
                     $matches[1],
                 ],
                 strlen($matches[0]),
@@ -42,7 +40,7 @@ trait CodeTrait
         return [['text', $text[0]], 1];
     }
 
-    protected function renderInlineCode($block)
+    protected function render_Inline_Code($block)
     {
         return '<code>' . htmlspecialchars($block[1], ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</code>';
     }

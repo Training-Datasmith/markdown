@@ -1,12 +1,9 @@
 <?php
-
-declare(strict_types=1);
-
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use cebe\markdown\Markdown;
-use cebe\markdown\GithubMarkdown;
-use cebe\markdown\MarkdownExtra;
+use cebe\markdown\Github_Markdown;
+use cebe\markdown\Markdown_Extra;
 
 // --- Example 1: Standard Markdown ---
 $parser = new Markdown();
@@ -26,7 +23,7 @@ echo $parser->parse($markdown);
 echo "\n";
 
 // --- Example 2: GitHub Flavored Markdown (GFM) ---
-$gfm_parser = new GithubMarkdown();
+$gfm_parser = new Github_Markdown();
 $gfm_parser->html5 = true;
 
 $gfm = '## Task List
@@ -47,7 +44,7 @@ echo $gfm_parser->parse($gfm);
 echo "\n";
 
 // --- Example 3: Markdown Extra (footnotes, definition lists, fenced code) ---
-$extra_parser = new MarkdownExtra();
+$extra_parser = new Markdown_Extra();
 
 $extra = '```php
 echo "Hello, World!";
@@ -65,5 +62,5 @@ echo "\n";
 
 // --- Example 4: Inline parsing (for a single paragraph, no wrapping <p>) ---
 $inline_parser = new Markdown();
-echo $inline_parser->parseParagraph('This has **bold** and `code` inline.');
+echo $inline_parser->parse_Paragraph('This has **bold** and `code` inline.');
 echo "\n";

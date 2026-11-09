@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2014 Carsten Brandt
  * @license https://github.com/cebe/markdown/blob/master/LICENSE
@@ -15,14 +13,14 @@ defined('ENT_HTML401') || define('ENT_HTML401', 0);
 /**
  * Adds auto linking for URLs
  */
-trait UrlLinkTrait
+trait Url_Link_Trait
 {
     /**
      * Parses urls and adds auto linking feature.
      * @marker http
      * @marker ftp
      */
-    protected function parseUrl($markdown)
+    protected function parse_Url($markdown)
     {
         $pattern = <<<REGEXP
 			/(?(R) # in case of recursion match parentheses
@@ -32,21 +30,21 @@ trait UrlLinkTrait
 			)/x
 REGEXP;
 
-        if (!in_array('parseLink', $this->context) && preg_match($pattern, $markdown, $matches)) {
+        if (!in_array('parse_Link', $this->context) && preg_match($pattern, $markdown, $matches)) {
             return [
-                ['autoUrl', $matches[0]],
+                ['auto_Url', $matches[0]],
                 strlen($matches[0]),
             ];
         }
         return [['text', substr($markdown, 0, 4)], 4];
     }
 
-    protected function renderAutoUrl($block)
+    protected function render_Auto_Url($block)
     {
         $href = htmlspecialchars($block[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
         $decodedUrl = urldecode($block[1]);
-        $secureUrlText = preg_match('//u', $decodedUrl) ? $decodedUrl : $block[1];
-        $text = htmlspecialchars($secureUrlText, ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $secure_Url_Text = preg_match('//u', $decodedUrl) ? $decodedUrl : $block[1];
+        $text = htmlspecialchars($secure_Url_Text, ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
         return "<a href=\"$href\">$text</a>";
     }
 }

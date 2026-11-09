@@ -9,20 +9,20 @@ A fast and extensible Markdown parser for PHP. Supports the original Markdown sp
 ```
 Parser.php          — Abstract base: core parsing loop, inline/block dispatch, trait composition
 Markdown.php        — Standard Markdown (Daring Fireball spec)
-MarkdownExtra.php   — Markdown Extra (footnotes, definition lists, fenced code, tables, etc.)
-GithubMarkdown.php  — GitHub Flavored Markdown (task lists, tables, strikethrough, auto-links)
+Markdown_Extra.php   — Markdown Extra (footnotes, definition lists, fenced code, tables, etc.)
+Github_Markdown.php  — GitHub Flavored Markdown (task lists, tables, strikethrough, auto-links)
 block/
-  CodeTrait.php       — Indented and fenced code blocks
-  HeadlineTrait.php   — ATX and Setext headings
-  HtmlTrait.php       — Raw HTML pass-through
-  ListTrait.php       — Ordered and unordered lists
-  QuoteTrait.php      — Blockquotes
-  RuleTrait.php       — Horizontal rules
+  Code_Trait.php       — Indented and fenced code blocks
+  Headline_Trait.php   — ATX and Setext headings
+  Html_Trait.php       — Raw HTML pass-through
+  List_Trait.php       — Ordered and unordered lists
+  Quote_Trait.php      — Blockquotes
+  Rule_Trait.php       — Horizontal rules
   ...
 inline/
-  CodeTrait.php       — Inline code spans
-  EmphStrongTrait.php — Emphasis and strong
-  LinkTrait.php       — Links and images
+  Code_Trait.php       — Inline code spans
+  Emph_Strong_Trait.php — Emphasis and strong
+  Link_Trait.php       — Links and images
   ...
 bin/
   markdown            — CLI script for converting Markdown files
@@ -44,6 +44,6 @@ bin/
 ```
 Parser (abstract)
   ├── Markdown  (uses block/* traits + inline/* traits)
-  ├── GithubMarkdown  (extends Markdown, adds GFM traits)
-  └── MarkdownExtra  (extends Markdown, adds Extra traits)
+  ├── Github_Markdown  (extends Markdown, adds GFM traits)
+  └── Markdown_Extra  (extends Markdown, adds Extra traits)
 ```

@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace cebe\markdown\tests;
 
-use cebe\markdown\MarkdownExtra;
+use cebe\markdown\Markdown_Extra;
 
 /**
  * @author Carsten Brandt <mail@cebe.cc>
  * @group extra
  */
-class MarkdownExtraTest extends BaseMarkdownTest
+class Markdown_Extra_Test extends Base_Markdown_Test
 {
-    public function createMarkdown()
+    public function create_Markdown()
     {
-        return new MarkdownExtra();
+        return new Markdown_Extra();
     }
 
-    public function getDataPaths()
+    public function get_Data_Paths()
     {
         return [
             'markdown-data' => __DIR__ . '/markdown-data',

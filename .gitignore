@@ -2,3 +2,5 @@
 composer.lock
 /vendor
 README.html
+.phpunit.result.cache
+.system-test/

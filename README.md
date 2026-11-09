@@ -82,11 +82,11 @@ To parse your markdown you need only two lines of code. The first one is to choo
 one of the following:
 
 - Traditional Markdown: `$parser = new \cebe\markdown\Markdown();`
-- Github Flavored Markdown: `$parser = new \cebe\markdown\GithubMarkdown();`
-- Markdown Extra: `$parser = new \cebe\markdown\MarkdownExtra();`
+- Github Flavored Markdown: `$parser = new \cebe\markdown\Github_Markdown();`
+- Markdown Extra: `$parser = new \cebe\markdown\Markdown_Extra();`
 
 The next step is to call the `parse()`-method for parsing the text using the full markdown language
-or calling the `parseParagraph()`-method to parse only inline elements.
+or calling the `parse_Paragraph()`-method to parse only inline elements.
 
 Here are some examples:
 
@@ -96,16 +96,16 @@ $parser = new \cebe\markdown\Markdown();
 echo $parser->parse($markdown);
 
 // use github markdown
-$parser = new \cebe\markdown\GithubMarkdown();
+$parser = new \cebe\markdown\Github_Markdown();
 echo $parser->parse($markdown);
 
 // use markdown extra
-$parser = new \cebe\markdown\MarkdownExtra();
+$parser = new \cebe\markdown\Markdown_Extra();
 echo $parser->parse($markdown);
 
 // parse only inline elements (useful for one-line descriptions)
-$parser = new \cebe\markdown\GithubMarkdown();
-echo $parser->parseParagraph($markdown);
+$parser = new \cebe\markdown\Github_Markdown();
+echo $parser->parse_Paragraph($markdown);
 ```
 
 You may optionally set one of the following options on the parser object:
@@ -113,12 +113,12 @@ You may optionally set one of the following options on the parser object:
 For all Markdown Flavors:
 
 - `$parser->html5 = true` to enable HTML5 output instead of HTML4.
-- `$parser->keepListStartNumber = true` to enable keeping the numbers of ordered lists as specified in the markdown.
+- `$parser->keep_List_Start_Number = true` to enable keeping the numbers of ordered lists as specified in the markdown.
   The default behavior is to always start from 1 and increment by one regardless of the number in markdown.
 
-For GithubMarkdown:
+For Github_Markdown:
 
-- `$parser->enableNewlines = true` to convert all newlines to `<br/>`-tags. By default only newlines with two preceding spaces are converted to `<br/>`-tags. 
+- `$parser->enable_Newlines = true` to convert all newlines to `<br/>`-tags. By default only newlines with two preceding spaces are converted to `<br/>`-tags. 
 
 It is recommended to use UTF-8 encoding for the input strings. Other encodings may work, but are currently untested.
 
@@ -255,7 +255,7 @@ In the following example we will implement support for [fenced code blocks][] wh
 
 class MyMarkdown extends \cebe\markdown\Markdown
 {
-	protected function identifyFencedCode($line, $lines, $current)
+	protected function identify_Fenced_Code($line, $lines, $current)
 	{
 		// if a line starts with at least 3 backticks it is identified as a fenced code block
 		if (strncmp($line, '```', 3) === 0) {
@@ -282,7 +282,7 @@ Parsing of a block element is done in two steps:
    In our example we will implement it like this:
 
    ```php
-	protected function consumeFencedCode($lines, $current)
+	protected function consume_Fenced_Code($lines, $current)
 	{
 		// create block array
 		$block = [
@@ -350,14 +350,14 @@ class MyMarkdown extends \cebe\markdown\Markdown
 	/**
 	 * @marker ~~
 	 */
-	protected function parseStrike($markdown)
+	protected function parse_Strike($markdown)
 	{
 		// check whether the marker really represents a strikethrough (i.e. there is a closing ~~)
 		if (preg_match('/^~~(.+?)~~/', $markdown, $matches)) {
 			return [
-			    // return the parsed tag as an element of the abstract syntax tree and call `parseInline()` to allow
+			    // return the parsed tag as an element of the abstract syntax tree and call `parse_Inline()` to allow
 			    // other inline markdown elements inside this tag
-				['strike', $this->parseInline($matches[1])],
+				['strike', $this->parse_Inline($matches[1])],
 				// return the offset of the parsed text
 				strlen($matches[0])
 			];
@@ -367,9 +367,9 @@ class MyMarkdown extends \cebe\markdown\Markdown
 	}
 
 	// rendering is the same as for block elements, we turn the abstract syntax array into a string.
-	protected function renderStrike($element)
+	protected function render_Strike($element)
 	{
-		return '<del>' . $this->renderAbsy($element[1]) . '</del>';
+		return '<del>' . $this->render_Absy($element[1]) . '</del>';
 	}
 }
 ```
@@ -389,7 +389,7 @@ Designing your Markdown flavor consists of four steps:
 #### Select a base class
 
 If you want to extend from a flavor and only add features you can use one of the existing classes
-(`Markdown`, `GithubMarkdown` or `MarkdownExtra`) as your flavors base class.
+(`Markdown`, `Github_Markdown` or `Markdown_Extra`) as your flavors base class.
 
 If you want to define a subset of the markdown language, i.e. remove some of the features, you have to
 extend your class from `Parser`.
@@ -402,26 +402,26 @@ The following shows the trait selection for traditional Markdown.
 class MyMarkdown extends Parser
 {
 	// include block element parsing using traits
-	use block\CodeTrait;
-	use block\HeadlineTrait;
-	use block\HtmlTrait {
-		parseInlineHtml as private;
+	use block\Code_Trait;
+	use block\Headline_Trait;
+	use block\Html_Trait {
+		parse_Inline_Html as private;
 	}
-	use block\ListTrait {
+	use block\List_Trait {
 		// Check Ul List before headline
-		identifyUl as protected identifyBUl;
-		consumeUl as protected consumeBUl;
+		identify_Ul as protected identify_B_Ul;
+		consume_Ul as protected consume_B_Ul;
 	}
-	use block\QuoteTrait;
-	use block\RuleTrait {
+	use block\Quote_Trait;
+	use block\Rule_Trait {
 		// Check Hr before checking lists
-		identifyHr as protected identifyAHr;
-		consumeHr as protected consumeAHr;
+		identify_Hr as protected identify_A_Hr;
+		consume_Hr as protected consume_A_Hr;
 	}
 	// include inline element parsing using traits
-	use inline\CodeTrait;
-	use inline\EmphStrongTrait;
-	use inline\LinkTrait;
+	use inline\Code_Trait;
+	use inline\Emph_Strong_Trait;
+	use inline\Link_Trait;
 
 	/**
 	 * @var boolean whether to format markup according to HTML5 spec.
@@ -442,13 +442,13 @@ class MyMarkdown extends Parser
 In general, just adding the trait with `use` is enough, however in some cases some fine tuning is desired
 to get most expected parsing results. Elements are detected in alphabetical order of their identification
 function. This means that if a line starting with `-` could be a list or a horizontal rule, the preference has to be set
-by renaming the identification function. This is what is done with renaming `identifyHr` to `identifyAHr`
-and `identifyBUl` to `identifyBUl`. The consume function always has to have the same name as the identification function
+by renaming the identification function. This is what is done with renaming `identify_Hr` to `identify_A_Hr`
+and `identify_B_Ul` to `identify_B_Ul`. The consume function always has to have the same name as the identification function
 so this has to be renamed too.
 
 There is also a conflict for parsing of the `<` character. This could either be a link/email enclosed in `<` and `>`
-or an inline HTML tag. In order to resolve this conflict when adding the `LinkTrait`, we need to hide the `parseInlineHtml`
-method of the `HtmlTrait`.
+or an inline HTML tag. In order to resolve this conflict when adding the `Link_Trait`, we need to hide the `parse_Inline_Html`
+method of the `Html_Trait`.
 
 If you use any trait that uses the `$html5` property to adjust its output you also need to define this property.
 
@@ -467,7 +467,7 @@ as is.
 	 * backslash, the character will be outputted without the backslash and is not interpreted
 	 * as markdown.
 	 */
-	protected $escapeCharacters = [
+	protected $escape_Characters = [
 		'\\', // backslash
 		'`', // backtick
 		'*', // asterisk
@@ -487,7 +487,7 @@ as is.
 #### Add custom rendering behavior
 
 Optionally you may also want to adjust rendering behavior by overriding some methods.
-You may refer to the `consumeParagraph()` method of the `Markdown` and `GithubMarkdown` classes for some inspiration
+You may refer to the `consume_Paragraph()` method of the `Markdown` and `Github_Markdown` classes for some inspiration
 which define different rules for which elements are allowed to interrupt a paragraph.
 
 

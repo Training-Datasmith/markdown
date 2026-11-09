@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2014 Carsten Brandt
  * @license https://github.com/cebe/markdown/blob/master/LICENSE
@@ -12,12 +10,12 @@ namespace cebe\markdown\block;
 /**
  * Adds the 4 space indented code blocks
  */
-trait CodeTrait
+trait Code_Trait
 {
     /**
      * identify a line as the beginning of a code block.
      */
-    protected function identifyCode($line)
+    protected function identify_Code($line)
     {
         // indentation >= 4 or one tab is code
         return ($l = $line[0]) === ' ' && $line[1] === ' ' && $line[2] === ' ' && $line[3] === ' ' || $l === "\t";
@@ -26,7 +24,7 @@ trait CodeTrait
     /**
      * Consume lines for a code block element
      */
-    protected function consumeCode(array $lines, $current)
+    protected function consume_Code(array $lines, $current)
     {
         // consume until newline
 
@@ -60,7 +58,7 @@ trait CodeTrait
     /**
      * Renders a code block
      */
-    protected function renderCode(array $block)
+    protected function render_Code(array $block)
     {
         $class = isset($block['language']) ? ' class="language-' . $block['language'] . '"' : '';
         return "<pre><code$class>" . htmlspecialchars($block['content'] . "\n", ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8') . "</code></pre>\n";

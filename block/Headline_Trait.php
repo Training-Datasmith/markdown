@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2014 Carsten Brandt
  * @license https://github.com/cebe/markdown/blob/master/LICENSE
@@ -12,12 +10,12 @@ namespace cebe\markdown\block;
 /**
  * Adds the headline blocks
  */
-trait HeadlineTrait
+trait Headline_Trait
 {
     /**
      * identify a line as a headline
      */
-    protected function identifyHeadline($line, array $lines, $current)
+    protected function identify_Headline($line, array $lines, $current)
     {
         return (
             // heading with #
@@ -33,7 +31,7 @@ trait HeadlineTrait
     /**
      * Consume lines for a headline
      */
-    protected function consumeHeadline(array $lines, $current)
+    protected function consume_Headline(array $lines, $current)
     {
         if ($lines[$current][0] === '#') {
             // ATX headline
@@ -43,7 +41,7 @@ trait HeadlineTrait
             }
             $block = [
                 'headline',
-                'content' => $this->parseInline(trim($lines[$current], "# \t")),
+                'content' => $this->parse_Inline(trim($lines[$current], "# \t")),
                 'level' => $level,
             ];
             return [$block, $current];
@@ -51,7 +49,7 @@ trait HeadlineTrait
         // underlined headline
         $block = [
                 'headline',
-                'content' => $this->parseInline($lines[$current]),
+                'content' => $this->parse_Inline($lines[$current]),
                 'level' => $lines[$current + 1][0] === '=' ? 1 : 2,
             ];
         return [$block, $current + 1];
@@ -60,12 +58,12 @@ trait HeadlineTrait
     /**
      * Renders a headline
      */
-    protected function renderHeadline(array $block)
+    protected function render_Headline(array $block)
     {
         $tag = 'h' . $block['level'];
-        return "<$tag>" . $this->renderAbsy($block['content']) . "</$tag>\n";
+        return "<$tag>" . $this->render_Absy($block['content']) . "</$tag>\n";
     }
 
-    abstract protected function parseInline($text);
-    abstract protected function renderAbsy($absy);
+    abstract protected function parse_Inline($text);
+    abstract protected function render_Absy($absy);
 }

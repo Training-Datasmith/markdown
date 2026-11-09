@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2014 Carsten Brandt
  * @license https://github.com/cebe/markdown/blob/master/LICENSE
@@ -12,12 +10,12 @@ namespace cebe\markdown\block;
 /**
  * Adds the block quote elements
  */
-trait QuoteTrait
+trait Quote_Trait
 {
     /**
      * identify a line as the beginning of a block quote.
      */
-    protected function identifyQuote($line)
+    protected function identify_Quote($line)
     {
         return $line[0] === '>' && (!isset($line[1]) || ($l1 = $line[1]) === ' ' || $l1 === "\t");
     }
@@ -25,7 +23,7 @@ trait QuoteTrait
     /**
      * Consume lines for a blockquote element
      */
-    protected function consumeQuote(array $lines, $current)
+    protected function consume_Quote(array $lines, $current)
     {
         // consume until newline
         $content = [];
@@ -45,7 +43,7 @@ trait QuoteTrait
 
         $block = [
             'quote',
-            'content' => $this->parseBlocks($content),
+            'content' => $this->parse_Blocks($content),
             'simple' => true,
         ];
         return [$block, $i];
@@ -54,11 +52,11 @@ trait QuoteTrait
     /**
      * Renders a blockquote
      */
-    protected function renderQuote(array $block)
+    protected function render_Quote(array $block)
     {
-        return '<blockquote>' . $this->renderAbsy($block['content']) . "</blockquote>\n";
+        return '<blockquote>' . $this->render_Absy($block['content']) . "</blockquote>\n";
     }
 
-    abstract protected function parseBlocks($lines);
-    abstract protected function renderAbsy($absy);
+    abstract protected function parse_Blocks($lines);
+    abstract protected function render_Absy($absy);
 }

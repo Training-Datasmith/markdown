@@ -16,16 +16,16 @@ use cebe\markdown\Markdown;
  * @author Maxim Hodyrew <maximkou@gmail.com>
  * @group default
  */
-class MarkdownOLStartNumTest extends BaseMarkdownTest
+class Markdown_OL_Start_Num_Test extends Base_Markdown_Test
 {
-    public function createMarkdown()
+    public function create_Markdown()
     {
         $markdown = new Markdown();
-        $markdown->keepListStartNumber = true;
+        $markdown->keep_List_Start_Number = true;
         return $markdown;
     }
 
-    public function getDataPaths()
+    public function get_Data_Paths()
     {
         return [
             'markdown-data' => __DIR__ . '/markdown-ol-start-num-data',

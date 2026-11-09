@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2014 Carsten Brandt
  * @license https://github.com/cebe/markdown/blob/master/LICENSE
@@ -12,19 +10,19 @@ namespace cebe\markdown\inline;
 /**
  * Adds strikeout inline elements
  */
-trait StrikeoutTrait
+trait Strikeout_Trait
 {
     /**
      * Parses the strikethrough feature.
      * @marker ~~
      */
-    protected function parseStrike($markdown)
+    protected function parse_Strike($markdown)
     {
         if (preg_match('/^~~(.+?)~~/', $markdown, $matches)) {
             return [
                 [
                     'strike',
-                    $this->parseInline($matches[1]),
+                    $this->parse_Inline($matches[1]),
                 ],
                 strlen($matches[0]),
             ];
@@ -32,11 +30,11 @@ trait StrikeoutTrait
         return [['text', $markdown[0] . $markdown[1]], 2];
     }
 
-    protected function renderStrike($block)
+    protected function render_Strike($block)
     {
-        return '<del>' . $this->renderAbsy($block[1]) . '</del>';
+        return '<del>' . $this->render_Absy($block[1]) . '</del>';
     }
 
-    abstract protected function parseInline($text);
-    abstract protected function renderAbsy($blocks);
+    abstract protected function parse_Inline($text);
+    abstract protected function render_Absy($blocks);
 }

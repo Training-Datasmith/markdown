@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2014 Carsten Brandt
  * @license https://github.com/cebe/markdown/blob/master/LICENSE
@@ -12,19 +10,19 @@ namespace cebe\markdown\block;
 /**
  * Adds the list blocks
  */
-trait ListTrait
+trait List_Trait
 {
     /**
      * @var bool enable support `start` attribute of ordered lists. This means that lists
      * will start with the number you actually type in markdown and not the HTML generated one.
      * Defaults to `false` which means that numeration of all ordered lists(<ol>) starts with 1.
      */
-    public $keepListStartNumber = false;
+    public $keep_List_Start_Number = false;
 
     /**
      * identify a line as the beginning of an ordered list.
      */
-    protected function identifyOl($line)
+    protected function identify_Ol($line)
     {
         return (($l = $line[0]) > '0' && $l <= '9' || $l === ' ') && preg_match('/^ {0,3}\d+\.[ \t]/', $line);
     }
@@ -32,7 +30,7 @@ trait ListTrait
     /**
      * identify a line as the beginning of an unordered list.
      */
-    protected function identifyUl($line)
+    protected function identify_Ul($line)
     {
         $l = $line[0];
         return ($l === '-' || $l === '+' || $l === '*') && (isset($line[1]) && (($l1 = $line[1]) === ' ' || $l1 === "\t")) ||
@@ -42,7 +40,7 @@ trait ListTrait
     /**
      * Consume lines for an ordered list
      */
-    protected function consumeOl($lines, $current)
+    protected function consume_Ol($lines, $current)
     {
         // consume until newline
 
@@ -52,13 +50,13 @@ trait ListTrait
             'attr' => [],
             'items' => [],
         ];
-        return $this->consumeList($lines, $current, $block, 'ol');
+        return $this->consume_List($lines, $current, $block, 'ol');
     }
 
     /**
      * Consume lines for an unordered list
      */
-    protected function consumeUl($lines, $current)
+    protected function consume_Ul($lines, $current)
     {
         // consume until newline
 
@@ -67,23 +65,23 @@ trait ListTrait
             'list' => 'ul',
             'items' => [],
         ];
-        return $this->consumeList($lines, $current, $block, 'ul');
+        return $this->consume_List($lines, $current, $block, 'ul');
     }
 
-    private function consumeList(array $lines, $current, array $block, $type)
+    private function consume_List(array $lines, $current, array $block, $type)
     {
         $item = 0;
         $indent = '';
         $len = 0;
-        $lastLineEmpty = false;
+        $last_Line_Empty = false;
         // track the indentation of list markers, if indented more than previous element
         // a list marker is considered to be long to a lower level
-        $leadSpace = 3;
+        $lead_Space = 3;
         $marker = $type === 'ul' ? ltrim($lines[$current])[0] : '';
         for ($i = $current, $count = count($lines); $i < $count; $i++) {
             $line = $lines[$i];
             // match list marker on the beginning of the line
-            $pattern = ($type === 'ol') ? '/^( {0,'.$leadSpace.'})(\d+)\.[ \t]+/' : '/^( {0,'.$leadSpace.'})\\'.$marker.'[ \t]+/';
+            $pattern = ($type === 'ol') ? '/^( {0,'.$lead_Space.'})(\d+)\.[ \t]+/' : '/^( {0,'.$lead_Space.'})\\'.$marker.'[ \t]+/';
             if (preg_match($pattern, $line, $matches)) {
                 if (($len = substr_count($matches[0], "\t")) > 0) {
                     $indent = str_repeat("\t", $len);
@@ -94,10 +92,10 @@ trait ListTrait
                     $line = substr($line, $len);
                 }
                 if ($i === $current) {
-                    $leadSpace = strlen($matches[1]) + 1;
+                    $lead_Space = strlen($matches[1]) + 1;
                 }
 
-                if ($type === 'ol' && $this->keepListStartNumber) {
+                if ($type === 'ol' && $this->keep_List_Start_Number) {
                     // attr `start` for ol
                     if (!isset($block['attr']['start']) && isset($matches[2])) {
                         $block['attr']['start'] = $matches[2];
@@ -105,11 +103,11 @@ trait ListTrait
                 }
 
                 $block['items'][++$item][] = $line;
-                $block['lazyItems'][$item] = $lastLineEmpty;
-                $lastLineEmpty = false;
+                $block['lazy_Items'][$item] = $last_Line_Empty;
+                $last_Line_Empty = false;
             } elseif (ltrim($line) === '') {
                 // line is empty, may be a lazy list
-                $lastLineEmpty = true;
+                $last_Line_Empty = true;
 
                 // two empty lines will end the list
                 if (!isset($lines[$i + 1][0])) {
@@ -118,13 +116,13 @@ trait ListTrait
                     // next item is the continuation of this list -> lazy list
                 } elseif (preg_match($pattern, $lines[$i + 1])) {
                     $block['items'][$item][] = $line;
-                    $block['lazyItems'][$item] = true;
+                    $block['lazy_Items'][$item] = true;
 
                     // next item is indented as much as this list -> lazy list if it is not a reference
                 } elseif (strncmp($lines[$i + 1], $indent, $len) === 0 || !empty($lines[$i + 1]) && $lines[$i + 1][0] == "\t") {
                     $block['items'][$item][] = $line;
-                    $nextLine = $lines[$i + 1][0] === "\t" ? substr($lines[$i + 1], 1) : substr($lines[$i + 1], $len);
-                    $block['lazyItems'][$item] = empty($nextLine) || !method_exists($this, 'identifyReference') || !$this->identifyReference($nextLine);
+                    $next_Line = $lines[$i + 1][0] === "\t" ? substr($lines[$i + 1], 1) : substr($lines[$i + 1], $len);
+                    $block['lazy_Items'][$item] = empty($next_Line) || !method_exists($this, 'identify_Reference') || !$this->identify_Reference($next_Line);
 
                     // everything else ends the list
                 } else {
@@ -137,28 +135,28 @@ trait ListTrait
                     $line = substr($line, $len);
                 }
                 $block['items'][$item][] = $line;
-                $lastLineEmpty = false;
+                $last_Line_Empty = false;
             }
 
             // if next line is <hr>, end the list
-            if (!empty($lines[$i + 1]) && method_exists($this, 'identifyHr') && $this->identifyHr($lines[$i + 1])) {
+            if (!empty($lines[$i + 1]) && method_exists($this, 'identify_Hr') && $this->identify_Hr($lines[$i + 1])) {
                 break;
             }
         }
 
-        foreach ($block['items'] as $itemId => $itemLines) {
+        foreach ($block['items'] as $item_Id => $item_Lines) {
             $content = [];
-            if (!$block['lazyItems'][$itemId]) {
-                $firstPar = [];
-                while (!empty($itemLines) && rtrim($itemLines[0]) !== '' && $this->detectLineType($itemLines, 0) === 'paragraph') {
-                    $firstPar[] = array_shift($itemLines);
+            if (!$block['lazy_Items'][$item_Id]) {
+                $first_Par = [];
+                while (!empty($item_Lines) && rtrim($item_Lines[0]) !== '' && $this->detect_Line_Type($item_Lines, 0) === 'paragraph') {
+                    $first_Par[] = array_shift($item_Lines);
                 }
-                $content = $this->parseInline(implode("\n", $firstPar));
+                $content = $this->parse_Inline(implode("\n", $first_Par));
             }
-            if (!empty($itemLines)) {
-                $content = array_merge($content, $this->parseBlocks($itemLines));
+            if (!empty($item_Lines)) {
+                $content = array_merge($content, $this->parse_Blocks($item_Lines));
             }
-            $block['items'][$itemId] = $content;
+            $block['items'][$item_Id] = $content;
         }
 
         return [$block, $i];
@@ -167,28 +165,28 @@ trait ListTrait
     /**
      * Renders a list
      */
-    protected function renderList(array $block)
+    protected function render_List(array $block)
     {
         $type = $block['list'];
 
         if (!empty($block['attr'])) {
-            $output = "<$type " . $this->generateHtmlAttributes($block['attr']) . ">\n";
+            $output = "<$type " . $this->generate_Html_Attributes($block['attr']) . ">\n";
         } else {
             $output = "<$type>\n";
         }
 
-        foreach ($block['items'] as $itemLines) {
-            $output .= '<li>' . $this->renderAbsy($itemLines). "</li>\n";
+        foreach ($block['items'] as $item_Lines) {
+            $output .= '<li>' . $this->render_Absy($item_Lines). "</li>\n";
         }
         return $output . "</$type>\n";
     }
 
     /**
-     * Return html attributes string from [attrName => attrValue] list
+     * Return html attributes string from [attr_Name => attr_Value] list
      * @param array $attributes the attribute name-value pairs.
      * @return string
      */
-    private function generateHtmlAttributes(array $attributes)
+    private function generate_Html_Attributes(array $attributes)
     {
         foreach ($attributes as $name => $value) {
             $attributes[$name] = "$name=\"$value\"";
@@ -196,8 +194,8 @@ trait ListTrait
         return implode(' ', $attributes);
     }
 
-    abstract protected function parseBlocks($lines);
-    abstract protected function parseInline($text);
-    abstract protected function renderAbsy($absy);
-    abstract protected function detectLineType($lines, $current);
+    abstract protected function parse_Blocks($lines);
+    abstract protected function parse_Inline($text);
+    abstract protected function render_Absy($absy);
+    abstract protected function detect_Line_Type($lines, $current);
 }

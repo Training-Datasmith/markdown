@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2014 Carsten Brandt
  * @license https://github.com/cebe/markdown/blob/master/LICENSE
@@ -15,13 +13,13 @@ defined('ENT_HTML401') || define('ENT_HTML401', 0);
 /**
  * Addes links and images as well as url markers.
  *
- * This trait conflicts with the HtmlTrait. If both are used together,
- * you have to define a resolution, by defining the HtmlTrait::parseInlineHtml
+ * This trait conflicts with the Html_Trait. If both are used together,
+ * you have to define a resolution, by defining the Html_Trait::parse_Inline_Html
  * as private so it is not used directly:
  *
  * ```php
- * use block\HtmlTrait {
- *     parseInlineHtml as private parseInlineHtml;
+ * use block\Html_Trait {
+ *     parse_Inline_Html as private parse_Inline_Html;
  * }
  * ```
  *
@@ -37,7 +35,7 @@ defined('ENT_HTML401') || define('ENT_HTML401', 0);
  * }
  * ```
  */
-trait LinkTrait
+trait Link_Trait
 {
     /**
      * @var array a list of defined references in this document.
@@ -49,10 +47,10 @@ trait LinkTrait
      * @param $text
      * @return string
      */
-    protected function replaceEscape($text)
+    protected function replace_Escape($text)
     {
         $strtr = [];
-        foreach ($this->escapeCharacters as $char) {
+        foreach ($this->escape_Characters as $char) {
             $strtr["\\$char"] = $char;
         }
         return strtr($text, $strtr);
@@ -62,14 +60,14 @@ trait LinkTrait
      * Parses a link indicated by `[`.
      * @marker [
      */
-    protected function parseLink(array $markdown)
+    protected function parse_Link($markdown)
     {
-        if (!in_array('parseLink', array_slice($this->context, 1)) && ($parts = $this->parseLinkOrImage($markdown)) !== false) {
+        if (!in_array('parse_Link', array_slice($this->context, 1)) && ($parts = $this->parse_Link_Or_Image($markdown)) !== false) {
             list($text, $url, $title, $offset, $key) = $parts;
             return [
                 [
                     'link',
-                    'text' => $this->parseInline($text),
+                    'text' => $this->parse_Inline($text),
                     'url' => $url,
                     'title' => $title,
                     'refkey' => $key,
@@ -92,9 +90,9 @@ trait LinkTrait
      * Parses an image indicated by `![`.
      * @marker ![
      */
-    protected function parseImage(array $markdown)
+    protected function parse_Image($markdown)
     {
-        if (($parts = $this->parseLinkOrImage(substr($markdown, 1))) !== false) {
+        if (($parts = $this->parse_Link_Or_Image(substr($markdown, 1))) !== false) {
             list($text, $url, $title, $offset, $key) = $parts;
 
             return [
@@ -119,11 +117,11 @@ trait LinkTrait
         return [['text', $result], $i];
     }
 
-    protected function parseLinkOrImage($markdown)
+    protected function parse_Link_Or_Image($markdown)
     {
-        if (strpos($markdown, ']') !== false && preg_match('/\[((?>[^\]\[]+|(?R))*)\]/', $markdown, $textMatches)) { // TODO improve bracket regex
-            $text = $textMatches[1];
-            $offset = strlen($textMatches[0]);
+        if (strpos($markdown, ']') !== false && preg_match('/\[((?>[^\]\[]+|(?R))*)\]/', $markdown, $text_Matches)) { // TODO improve bracket regex
+            $text = $text_Matches[1];
+            $offset = strlen($text_Matches[0]);
             $markdown = substr($markdown, $offset);
 
             $pattern = <<<REGEXP
@@ -133,28 +131,28 @@ trait LinkTrait
 					^\(\s*(((?>[^\s()]+)|(?R))*)(\s+"(.*?)")?\s*\)
 				)/x
 REGEXP;
-            if (preg_match($pattern, $markdown, $refMatches)) {
+            if (preg_match($pattern, $markdown, $ref_Matches)) {
                 // inline link
                 return [
                     $text,
-                    isset($refMatches[2]) ? $this->replaceEscape($refMatches[2]) : '', // url
-                    empty($refMatches[5]) ? null : $refMatches[5], // title
-                    $offset + strlen($refMatches[0]), // offset
+                    isset($ref_Matches[2]) ? $this->replace_Escape($ref_Matches[2]) : '', // url
+                    empty($ref_Matches[5]) ? null : $ref_Matches[5], // title
+                    $offset + strlen($ref_Matches[0]), // offset
                     null, // reference key
                 ];
             }
-            if (preg_match('/^([ \n]?\[(.*?)\])?/s', $markdown, $refMatches)) {
+            if (preg_match('/^([ \n]?\[(.*?)\])?/s', $markdown, $ref_Matches)) {
                 // reference style link
-                if (empty($refMatches[2])) {
+                if (empty($ref_Matches[2])) {
                     $key = strtolower($text);
                 } else {
-                    $key = strtolower($refMatches[2]);
+                    $key = strtolower($ref_Matches[2]);
                 }
                 return [
                     $text,
                     null, // url
                     null, // title
-                    $offset + strlen($refMatches[0]), // offset
+                    $offset + strlen($ref_Matches[0]), // offset
                     $key,
                 ];
             }
@@ -166,14 +164,14 @@ REGEXP;
      * Parses inline HTML.
      * @marker <
      */
-    protected function parseLt($text)
+    protected function parse_Lt($text)
     {
         if (strpos($text, '>') !== false) {
-            if (!in_array('parseLink', $this->context)) { // do not allow links in links
+            if (!in_array('parse_Link', $this->context)) { // do not allow links in links
                 if (preg_match('/^<([^\s>]*?@[^\s]*?\.\w+?)>/', $text, $matches)) {
                     // email address
                     return [
-                        ['email', $this->replaceEscape($matches[1])],
+                        ['email', $this->replace_Escape($matches[1])],
                         strlen($matches[0]),
                     ];
                 }
@@ -181,68 +179,68 @@ REGEXP;
                 if (preg_match('/^<([a-z]{3,}:\/\/[^\s]+?)>/', $text, $matches)) {
                     // URL
                     return [
-                        ['url', $this->replaceEscape($matches[1])],
+                        ['url', $this->replace_Escape($matches[1])],
                         strlen($matches[0]),
                     ];
                 }
             }
-            // try inline HTML if it was neither a URL nor email if HtmlTrait is included.
-            if (method_exists($this, 'parseInlineHtml')) {
-                return $this->parseInlineHtml($text);
+            // try inline HTML if it was neither a URL nor email if Html_Trait is included.
+            if (method_exists($this, 'parse_Inline_Html')) {
+                return $this->parse_Inline_Html($text);
             }
         }
         return [['text', '&lt;'], 1];
     }
 
-    protected function renderEmail($block)
+    protected function render_Email($block)
     {
         $email = htmlspecialchars($block[1], ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
         return "<a href=\"mailto:$email\">$email</a>";
     }
 
-    protected function renderUrl($block)
+    protected function render_Url($block)
     {
         $url = htmlspecialchars($block[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
         $decodedUrl = urldecode($block[1]);
-        $secureUrlText = preg_match('//u', $decodedUrl) ? $decodedUrl : $block[1];
-        $text = htmlspecialchars($secureUrlText, ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $secure_Url_Text = preg_match('//u', $decodedUrl) ? $decodedUrl : $block[1];
+        $text = htmlspecialchars($secure_Url_Text, ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
         return "<a href=\"$url\">$text</a>";
     }
 
-    protected function lookupReference($key)
+    protected function lookup_Reference($key)
     {
-        $normalizedKey = preg_replace('/\s+/', ' ', $key);
-        if (isset($this->references[$key]) || isset($this->references[$key = $normalizedKey])) {
+        $normalized_Key = preg_replace('/\s+/', ' ', $key);
+        if (isset($this->references[$key]) || isset($this->references[$key = $normalized_Key])) {
             return $this->references[$key];
         }
         return false;
     }
 
-    protected function renderLink($block)
+    protected function render_Link($block)
     {
         if (isset($block['refkey'])) {
-            if (($ref = $this->lookupReference($block['refkey'])) !== false) {
+            if (($ref = $this->lookup_Reference($block['refkey'])) !== false) {
                 $block = array_merge($block, $ref);
             } else {
                 if (strncmp($block['orig'], '[', 1) === 0) {
-                    return '[' . $this->renderAbsy($this->parseInline(substr($block['orig'], 1)));
+                    return '[' . $this->render_Absy($this->parse_Inline(substr($block['orig'], 1)));
                 }
                 return $block['orig'];
             }
         }
         return '<a href="' . htmlspecialchars($block['url'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
             . (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"')
-            . '>' . $this->renderAbsy($block['text']) . '</a>';
+            . '>' . $this->render_Absy($block['text']) . '</a>';
     }
 
-    protected function renderImage($block)
+    protected function render_Image($block)
     {
         if (isset($block['refkey'])) {
-            if (($ref = $this->lookupReference($block['refkey'])) !== false) {
+            if (($ref = $this->lookup_Reference($block['refkey'])) !== false) {
                 $block = array_merge($block, $ref);
             } else {
                 if (strncmp($block['orig'], '![', 2) === 0) {
-                    return '![' . $this->renderAbsy($this->parseInline(substr($block['orig'], 2)));
+                    return '![' . $this->render_Absy($this->parse_Inline(substr($block['orig'], 2)));
                 }
                 return $block['orig'];
             }
@@ -255,7 +253,7 @@ REGEXP;
 
     // references
 
-    protected function identifyReference($line)
+    protected function identify_Reference($line)
     {
         return isset($line[0]) && ($line[0] === ' ' || $line[0] === '[') && preg_match('/^ {0,3}\[[^\[](.*?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*$/', $line);
     }
@@ -263,13 +261,13 @@ REGEXP;
     /**
      * Consume link references
      */
-    protected function consumeReference(array $lines, $current)
+    protected function consume_Reference(array $lines, $current)
     {
         while (isset($lines[$current]) && preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\(\'"](.+?)[\)\'"])?\s*$/', $lines[$current], $matches)) {
             $label = strtolower($matches[1]);
 
             $this->references[$label] = [
-                'url' => $this->replaceEscape($matches[2]),
+                'url' => $this->replace_Escape($matches[2]),
             ];
             if (isset($matches[3])) {
                 $this->references[$label]['title'] = $matches[3];
@@ -285,6 +283,6 @@ REGEXP;
         return [false, --$current];
     }
 
-    abstract protected function parseInline($text);
-    abstract protected function renderAbsy($blocks);
+    abstract protected function parse_Inline($text);
+    abstract protected function render_Absy($blocks);
 }

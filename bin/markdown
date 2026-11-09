@@ -22,8 +22,8 @@ ini_set('display_errors', 'stderr');
 
 $flavor = 'cebe\\markdown\\Markdown';
 $flavors = [
-	'gfm'   => ['cebe\\markdown\\GithubMarkdown', __DIR__ . '/../GithubMarkdown.php'],
-	'extra' => ['cebe\\markdown\\MarkdownExtra',  __DIR__ . '/../MarkdownExtra.php'],
+	'gfm'   => ['cebe\\markdown\\Github_Markdown', __DIR__ . '/../Github_Markdown.php'],
+	'extra' => ['cebe\\markdown\\Markdown_Extra',  __DIR__ . '/../Markdown_Extra.php'],
 ];
 
 $full = false;
