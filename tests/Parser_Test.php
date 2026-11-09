@@ -19,7 +19,7 @@ use cebe\markdown\Parser;
  */
 class Parser_Test extends \PHPUnit\Framework\TestCase
 {
-    public function test_Marker_Order()
+    public function test_marker_order()
     {
         $parser = new Test_Parser();
         $parser->markers = [
@@ -29,8 +29,8 @@ class Parser_Test extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals("<p>Result is A</p>\n", $parser->parse('Result is [abc]'));
         $this->assertEquals("<p>Result is B</p>\n", $parser->parse('Result is [[abc]]'));
-        $this->assertEquals('Result is A', $parser->parse_Paragraph('Result is [abc]'));
-        $this->assertEquals('Result is B', $parser->parse_Paragraph('Result is [[abc]]'));
+        $this->assertEquals('Result is A', $parser->parse_paragraph('Result is [abc]'));
+        $this->assertEquals('Result is B', $parser->parse_paragraph('Result is [[abc]]'));
 
         $parser = new Test_Parser();
         $parser->markers = [
@@ -40,11 +40,11 @@ class Parser_Test extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals("<p>Result is A</p>\n", $parser->parse('Result is [abc]'));
         $this->assertEquals("<p>Result is B</p>\n", $parser->parse('Result is [[abc]]'));
-        $this->assertEquals('Result is A', $parser->parse_Paragraph('Result is [abc]'));
-        $this->assertEquals('Result is B', $parser->parse_Paragraph('Result is [[abc]]'));
+        $this->assertEquals('Result is A', $parser->parse_paragraph('Result is [abc]'));
+        $this->assertEquals('Result is B', $parser->parse_paragraph('Result is [[abc]]'));
     }
 
-    public function test_Max_Nesting_Level()
+    public function test_max_nesting_level()
     {
         $parser = new Test_Parser();
         $parser->markers = [
@@ -52,18 +52,18 @@ class Parser_Test extends \PHPUnit\Framework\TestCase
         ];
 
         $parser->maximum_nesting_level = 3;
-        $this->assertEquals('(C-a(C-b(C-c)))', $parser->parse_Paragraph('[a[b[c]]]'));
+        $this->assertEquals('(C-a(C-b(C-c)))', $parser->parse_paragraph('[a[b[c]]]'));
         $parser->maximum_nesting_level = 2;
-        $this->assertEquals('(C-a(C-b[c]))', $parser->parse_Paragraph('[a[b[c]]]'));
+        $this->assertEquals('(C-a(C-b[c]))', $parser->parse_paragraph('[a[b[c]]]'));
         $parser->maximum_nesting_level = 1;
-        $this->assertEquals('(C-a[b[c]])', $parser->parse_Paragraph('[a[b[c]]]'));
+        $this->assertEquals('(C-a[b[c]])', $parser->parse_paragraph('[a[b[c]]]'));
     }
 
-    public function test_Keep_Zero_Alive()
+    public function test_keep_zero_alive()
     {
         $parser = new Test_Parser();
 
-        $this->assertEquals('0', $parser->parse_Paragraph('0'));
+        $this->assertEquals('0', $parser->parse_paragraph('0'));
         $this->assertEquals("<p>0</p>\n", $parser->parse('0'));
     }
 }
@@ -72,7 +72,7 @@ class Test_Parser extends Parser
 {
     public $markers = [];
 
-    protected function inline_Markers()
+    protected function inline_markers()
     {
         return $this->markers;
     }
@@ -89,8 +89,8 @@ class Test_Parser extends Parser
 
     protected function parse_marker_c($text)
     {
-        $terminating_Marker_Pos = strrpos($text, ']');
-        $inside = $this->parse_Inline(substr($text, 1, $terminating_Marker_Pos - 1));
-        return [['text', '(C-' . $this->render_Absy($inside) . ')'], $terminating_Marker_Pos + 1];
+        $terminating_marker_pos = strrpos($text, ']');
+        $inside = $this->parse_inline(substr($text, 1, $terminating_marker_pos - 1));
+        return [['text', '(C-' . $this->render_absy($inside) . ')'], $terminating_marker_pos + 1];
     }
 }

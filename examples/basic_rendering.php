@@ -62,5 +62,5 @@ echo "\n";
 
 // --- Example 4: Inline parsing (for a single paragraph, no wrapping <p>) ---
 $inline_parser = new Markdown();
-echo $inline_parser->parse_Paragraph('This has **bold** and `code` inline.');
+echo $inline_parser->parse_paragraph('This has **bold** and `code` inline.');
 echo "\n";

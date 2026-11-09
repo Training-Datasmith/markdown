@@ -18,49 +18,49 @@ use cebe\markdown\Parser;
  */
 abstract class Base_Markdown_Test extends \PHPUnit\Framework\TestCase
 {
-    protected $output_File_Extension = '.html';
+    protected $output_file_extension = '.html';
 
-    abstract public function get_Data_Paths();
+    abstract public function get_data_paths();
 
     /**
      * @return Parser
      */
-    abstract public function create_Markdown();
+    abstract public function create_markdown();
 
     /**
-     * @dataProvider data_Files
+     * @dataProvider data_files
      */
-    public function testParse($path, $file)
+    public function test_parse($path, $file)
     {
-        list($markdown, $html) = $this->get_Test_Data($path, $file);
+        list($markdown, $html) = $this->get_test_data($path, $file);
         // Different OS line endings should not affect test
         $html = str_replace(["\r\n", "\n\r", "\r"], "\n", $html);
 
-        $m = $this->create_Markdown();
+        $m = $this->create_markdown();
         $this->assertEquals($html, $m->parse($markdown));
     }
 
-    public function testUtf8()
+    public function test_utf8()
     {
-        $this->assertSame("<p>абвгдеёжзийклмнопрстуфхцчшщъыьэюя</p>\n", $this->create_Markdown()->parse('абвгдеёжзийклмнопрстуфхцчшщъыьэюя'));
-        $this->assertSame("<p>there is a charater, 配</p>\n", $this->create_Markdown()->parse('there is a charater, 配'));
-        $this->assertSame("<p>Arabic Latter \"م (M)\"</p>\n", $this->create_Markdown()->parse('Arabic Latter "م (M)"'));
-        $this->assertSame("<p>電腦</p>\n", $this->create_Markdown()->parse('電腦'));
+        $this->assertSame("<p>абвгдеёжзийклмнопрстуфхцчшщъыьэюя</p>\n", $this->create_markdown()->parse('абвгдеёжзийклмнопрстуфхцчшщъыьэюя'));
+        $this->assertSame("<p>there is a charater, 配</p>\n", $this->create_markdown()->parse('there is a charater, 配'));
+        $this->assertSame("<p>Arabic Latter \"م (M)\"</p>\n", $this->create_markdown()->parse('Arabic Latter "م (M)"'));
+        $this->assertSame("<p>電腦</p>\n", $this->create_markdown()->parse('電腦'));
 
-        $this->assertSame('абвгдеёжзийклмнопрстуфхцчшщъыьэюя', $this->create_Markdown()->parse_Paragraph('абвгдеёжзийклмнопрстуфхцчшщъыьэюя'));
-        $this->assertSame('there is a charater, 配', $this->create_Markdown()->parse_Paragraph('there is a charater, 配'));
-        $this->assertSame('Arabic Latter "م (M)"', $this->create_Markdown()->parse_Paragraph('Arabic Latter "م (M)"'));
-        $this->assertSame('電腦', $this->create_Markdown()->parse_Paragraph('電腦'));
+        $this->assertSame('абвгдеёжзийклмнопрстуфхцчшщъыьэюя', $this->create_markdown()->parse_paragraph('абвгдеёжзийклмнопрстуфхцчшщъыьэюя'));
+        $this->assertSame('there is a charater, 配', $this->create_markdown()->parse_paragraph('there is a charater, 配'));
+        $this->assertSame('Arabic Latter "م (M)"', $this->create_markdown()->parse_paragraph('Arabic Latter "م (M)"'));
+        $this->assertSame('電腦', $this->create_markdown()->parse_paragraph('電腦'));
     }
 
-    public function test_Invalid_Utf8()
+    public function test_invalid_utf8()
     {
-        $m = $this->create_Markdown();
+        $m = $this->create_markdown();
         $this->assertEquals("<p><code>�</code></p>\n", $m->parse("`\x80`"));
-        $this->assertEquals('<code>�</code>', $m->parse_Paragraph("`\x80`"));
+        $this->assertEquals('<code>�</code>', $m->parse_paragraph("`\x80`"));
     }
 
-    public function preg_Data()
+    public function preg_data()
     {
         // http://en.wikipedia.org/wiki/Newline#Representations
         return [
@@ -77,26 +77,26 @@ abstract class Base_Markdown_Test extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @dataProvider preg_Data
+     * @dataProvider preg_data
      */
-    public function test_Preg_Replace_R($input, $exptected, $pexpect = null)
+    public function test_preg_replace_r($input, $exptected, $pexpect = null)
     {
-        $this->assertSame($exptected, $this->create_Markdown()->parse_Paragraph($input));
-        $this->assertSame($pexpect === null ? "<p>$exptected</p>\n" : "<p>$pexpect</p>\n", $this->create_Markdown()->parse($input));
+        $this->assertSame($exptected, $this->create_markdown()->parse_paragraph($input));
+        $this->assertSame($pexpect === null ? "<p>$exptected</p>\n" : "<p>$pexpect</p>\n", $this->create_markdown()->parse($input));
     }
 
-    public function get_Test_Data($path, $file)
+    public function get_test_data($path, $file)
     {
         return [
-            file_get_contents($this->get_Data_Paths()[$path] . '/' . $file . '.md'),
-            file_get_contents($this->get_Data_Paths()[$path] . '/' . $file . $this->output_File_Extension),
+            file_get_contents($this->get_data_paths()[$path] . '/' . $file . '.md'),
+            file_get_contents($this->get_data_paths()[$path] . '/' . $file . $this->output_file_extension),
         ];
     }
 
-    public function data_Files()
+    public function data_files()
     {
         $files = [];
-        foreach ($this->get_Data_Paths() as $name => $src) {
+        foreach ($this->get_data_paths() as $name => $src) {
             $handle = opendir($src);
             if ($handle === false) {
                 throw new \Exception('Unable to open directory: ' . $src);
@@ -106,7 +106,7 @@ abstract class Base_Markdown_Test extends \PHPUnit\Framework\TestCase
                     continue;
                 }
 
-                if (substr($file, -3, 3) === '.md' && file_exists($src . '/' . substr($file, 0, -3) .  $this->output_File_Extension)) {
+                if (substr($file, -3, 3) === '.md' && file_exists($src . '/' . substr($file, 0, -3) .  $this->output_file_extension)) {
                     $files[] = [$name, substr($file, 0, -3)];
                 }
             }

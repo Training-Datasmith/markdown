@@ -18,14 +18,14 @@ use cebe\markdown\Markdown;
  */
 class Markdown_OL_Start_Num_Test extends Base_Markdown_Test
 {
-    public function create_Markdown()
+    public function create_markdown()
     {
         $markdown = new Markdown();
-        $markdown->keep_List_Start_Number = true;
+        $markdown->keep_list_start_number = true;
         return $markdown;
     }
 
-    public function get_Data_Paths()
+    public function get_data_paths()
     {
         return [
             'markdown-data' => __DIR__ . '/markdown-ol-start-num-data',

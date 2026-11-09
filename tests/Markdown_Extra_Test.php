@@ -12,12 +12,12 @@ use cebe\markdown\Markdown_Extra;
  */
 class Markdown_Extra_Test extends Base_Markdown_Test
 {
-    public function create_Markdown()
+    public function create_markdown()
     {
         return new Markdown_Extra();
     }
 
-    public function get_Data_Paths()
+    public function get_data_paths()
     {
         return [
             'markdown-data' => __DIR__ . '/markdown-data',

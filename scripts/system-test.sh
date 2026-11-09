@@ -6,7 +6,6 @@ IMAGE_TAG="markdown-system-test:7.2"
 FLOOR_IMAGE_TAG="markdown-floor:5.4.45"
 USE_SUDO_DOCKER="${USE_SUDO_DOCKER:-0}"
 OUT_DIR="${ROOT}/.system-test"
-PHPUNIT_OUT="${OUT_DIR}/phpunit.out"
 mkdir -p "${OUT_DIR}"
 
 docker_cmd() {
@@ -27,9 +26,29 @@ fail_if_deprecation_output() {
     local stripped
     stripped="$(mktemp)"
     strip_ansi <"${file}" >"${stripped}"
-    if grep -E '(^|[[:space:]])(PHP[[:space:]]+)?(Warning|Deprecated|Notice):' "${stripped}" >/dev/null; then
+    if grep -E '^(PHP )?(Warning|Deprecated|Notice):' "${stripped}" >/dev/null; then
         echo "${label}: output contains Warning, Deprecated, or Notice lines" >&2
-        grep -E '(^|[[:space:]])(PHP[[:space:]]+)?(Warning|Deprecated|Notice):' "${stripped}" >&2 || true
+        grep -E '^(PHP )?(Warning|Deprecated|Notice):' "${stripped}" >&2 || true
+        rm -f "${stripped}"
+        exit 1
+    fi
+    if grep -E '(^|[[:space:]])(PHP[[:space:]]+)?(Warning|Deprecated|Notice):' "${stripped}" >/dev/null; then
+        echo "${label}: output contains embedded Warning, Deprecated, or Notice lines" >&2
+        rm -f "${stripped}"
+        exit 1
+    fi
+    rm -f "${stripped}"
+}
+
+require_stripped_line() {
+    local file="$1"
+    local pattern="$2"
+    local label="$3"
+    local stripped
+    stripped="$(mktemp)"
+    strip_ansi <"${file}" >"${stripped}"
+    if ! grep -Eq "${pattern}" "${stripped}"; then
+        echo "${label}: missing anchored line matching ${pattern}" >&2
         rm -f "${stripped}"
         exit 1
     fi
@@ -102,9 +121,12 @@ audit_status=\$?
 set -e
 cat /app/.system-test/composer-audit.out
 test \"\${audit_status}\" -eq 0
-php scripts/check-cluster-pins.php
-php scripts/check-rename.php --demo-old-name
-php scripts/check-rename.php
+php scripts/check-cluster-pins.php > /app/.system-test/pins.out 2>&1
+cat /app/.system-test/pins.out
+php scripts/check-rename.php --demo-old-name > /app/.system-test/rename.out 2>&1
+php scripts/check-rename.php --demo-camel-case >> /app/.system-test/rename.out 2>&1
+php scripts/check-rename.php >> /app/.system-test/rename.out 2>&1
+cat /app/.system-test/rename.out
 set +e
 vendor/bin/phpunit --colors=never --no-coverage > /app/.system-test/phpunit.out 2>&1
 phpunit_status=\$?
@@ -116,25 +138,30 @@ test \"\${phpunit_status}\" -eq 0
 fi
 
 fail_if_deprecation_output "composer-update" "${OUT_DIR}/composer-update.out"
-if ! grep -Fxq 'No security vulnerability advisories found.' "${OUT_DIR}/composer-audit.out"; then
-    echo "composer audit: missing exact success line" >&2
-    exit 1
-fi
-if grep -Eq '^Found [0-9]+ abandoned package' "${OUT_DIR}/composer-audit.out"; then
+fail_if_deprecation_output "composer-audit" "${OUT_DIR}/composer-audit.out"
+fail_if_deprecation_output "pins" "${OUT_DIR}/pins.out"
+fail_if_deprecation_output "rename" "${OUT_DIR}/rename.out"
+fail_if_deprecation_output "phpunit" "${OUT_DIR}/phpunit.out"
+
+require_stripped_line "${OUT_DIR}/composer-audit.out" '^No security vulnerability advisories found\.$' "composer audit"
+if strip_ansi <"${OUT_DIR}/composer-audit.out" | grep -Eq '^Found [0-9]+ abandoned package'; then
     echo "composer audit: abandoned packages reported" >&2
     exit 1
 fi
-if grep -Eq '^Found [0-9]+ (ignored )?security vulnerability' "${OUT_DIR}/composer-audit.out"; then
+if strip_ansi <"${OUT_DIR}/composer-audit.out" | grep -Eq '^Found [0-9]+ (ignored )?security vulnerability'; then
     echo "composer audit: vulnerabilities reported" >&2
     exit 1
 fi
 
-fail_if_deprecation_output "phpunit" "${PHPUNIT_OUT}"
-if ! grep -E "${OK_PATTERN}" "${PHPUNIT_OUT}" >/dev/null; then
-    echo "phpunit: missing strict OK success line" >&2
-    grep -E '^OK ' "${PHPUNIT_OUT}" || true
-    exit 1
-fi
+require_stripped_line "${OUT_DIR}/pins.out" '^check-cluster-pins: wrong-SHA demo rejected installed\.php reference$' "pins"
+require_stripped_line "${OUT_DIR}/pins.out" '^check-cluster-pins: wrong-SHA demo rejected installed\.json source\.reference$' "pins"
+require_stripped_line "${OUT_DIR}/pins.out" '^check-cluster-pins: 0 org pins matched; phpunit/phpunit 8\.5\.(5[2-9]|[6-9][0-9]{1,2}) from Packagist \(not an org fork\)$' "pins"
+
+require_stripped_line "${OUT_DIR}/rename.out" '^check-rename: demo detected injected old name GithubMarkdown$' "rename"
+require_stripped_line "${OUT_DIR}/rename.out" '^check-rename: demo detected injected camelCase identifier testParse$' "rename"
+require_stripped_line "${OUT_DIR}/rename.out" '^check-rename: no pre-rename repo-owned names remain$' "rename"
+
+require_stripped_line "${OUT_DIR}/phpunit.out" "${OK_PATTERN}" "phpunit"
 
 FLOOR_OUT="${OUT_DIR}/php-floor.out"
 : >"${FLOOR_OUT}"
@@ -158,15 +185,13 @@ for rel in "${LIBRARY_FILES[@]}"; do
 done
 
 fail_if_deprecation_output "php-floor" "${FLOOR_OUT}"
-while IFS= read -r line; do
-    if ! grep -Eq '^No syntax errors detected in .+$' <<<"${line}"; then
-        if [[ "${line}" == php-floor:* ]]; then
-            continue
-        fi
-        echo "php -l line missing anchored success: ${line}" >&2
-        exit 1
-    fi
-done < <(grep '^No syntax errors detected in ' "${FLOOR_OUT}")
+require_stripped_line "${FLOOR_OUT}" '^php-floor: 5\.4\.45$' "php-floor"
+
+lint_matches="$(strip_ansi <"${FLOOR_OUT}" | grep -Ec '^No syntax errors detected in .+$' || true)"
+if [[ "${lint_matches}" -ne 19 ]]; then
+    echo "php -l: expected 19 anchored success lines, got ${lint_matches}" >&2
+    exit 1
+fi
 
 echo "php-lint: No syntax errors detected in ${lint_count} library files on PHP 5.4.45"
 echo "system-test: all steps passed."

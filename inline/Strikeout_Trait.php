@@ -16,13 +16,13 @@ trait Strikeout_Trait
      * Parses the strikethrough feature.
      * @marker ~~
      */
-    protected function parse_Strike($markdown)
+    protected function parse_strike($markdown)
     {
         if (preg_match('/^~~(.+?)~~/', $markdown, $matches)) {
             return [
                 [
                     'strike',
-                    $this->parse_Inline($matches[1]),
+                    $this->parse_inline($matches[1]),
                 ],
                 strlen($matches[0]),
             ];
@@ -30,11 +30,11 @@ trait Strikeout_Trait
         return [['text', $markdown[0] . $markdown[1]], 2];
     }
 
-    protected function render_Strike($block)
+    protected function render_strike($block)
     {
-        return '<del>' . $this->render_Absy($block[1]) . '</del>';
+        return '<del>' . $this->render_absy($block[1]) . '</del>';
     }
 
-    abstract protected function parse_Inline($text);
-    abstract protected function render_Absy($blocks);
+    abstract protected function parse_inline($text);
+    abstract protected function render_absy($blocks);
 }

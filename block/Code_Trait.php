@@ -15,7 +15,7 @@ trait Code_Trait
     /**
      * identify a line as the beginning of a code block.
      */
-    protected function identify_Code($line)
+    protected function identify_code($line)
     {
         // indentation >= 4 or one tab is code
         return ($l = $line[0]) === ' ' && $line[1] === ' ' && $line[2] === ' ' && $line[3] === ' ' || $l === "\t";
@@ -24,7 +24,7 @@ trait Code_Trait
     /**
      * Consume lines for a code block element
      */
-    protected function consume_Code(array $lines, $current)
+    protected function consume_code(array $lines, $current)
     {
         // consume until newline
 
@@ -58,7 +58,7 @@ trait Code_Trait
     /**
      * Renders a code block
      */
-    protected function render_Code(array $block)
+    protected function render_code(array $block)
     {
         $class = isset($block['language']) ? ' class="language-' . $block['language'] . '"' : '';
         return "<pre><code$class>" . htmlspecialchars($block['content'] . "\n", ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8') . "</code></pre>\n";

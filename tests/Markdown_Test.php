@@ -19,44 +19,44 @@ use cebe\markdown\Markdown;
  */
 class Markdown_Test extends Base_Markdown_Test
 {
-    public function create_Markdown()
+    public function create_markdown()
     {
         return new Markdown();
     }
 
-    public function get_Data_Paths()
+    public function get_data_paths()
     {
         return [
             'markdown-data' => __DIR__ . '/markdown-data',
         ];
     }
 
-    public function test_Edge_Cases()
+    public function test_edge_cases()
     {
-        $this->assertEquals("<p>&amp;</p>\n", $this->create_Markdown()->parse('&'));
-        $this->assertEquals("<p>&lt;</p>\n", $this->create_Markdown()->parse('<'));
+        $this->assertEquals("<p>&amp;</p>\n", $this->create_markdown()->parse('&'));
+        $this->assertEquals("<p>&lt;</p>\n", $this->create_markdown()->parse('<'));
     }
 
-    public function test_Keep_Zero_Alive()
+    public function test_keep_zero_alive()
     {
-        $parser = $this->create_Markdown();
+        $parser = $this->create_markdown();
 
-        $this->assertEquals('0', $parser->parse_Paragraph('0'));
+        $this->assertEquals('0', $parser->parse_paragraph('0'));
         $this->assertEquals("<p>0</p>\n", $parser->parse('0'));
     }
 
-    public function test_Auto_Link_Labeling_With_Encoded_Url()
+    public function test_auto_link_labeling_with_encoded_url()
     {
-        $parser = $this->create_Markdown();
+        $parser = $this->create_markdown();
 
-        $utf_Text = "\xe3\x81\x82\xe3\x81\x84\xe3\x81\x86\xe3\x81\x88\xe3\x81\x8a";
-        $utf_Natural_Url = 'http://example.com/' . $utf_Text;
-        $utf_Encoded_Url = 'http://example.com/' . urlencode($utf_Text);
-        $euc_Encoded_Url = 'http://example.com/' . urlencode(mb_convert_encoding($utf_Text, 'EUC-JP', 'UTF-8'));
+        $utf_text = "\xe3\x81\x82\xe3\x81\x84\xe3\x81\x86\xe3\x81\x88\xe3\x81\x8a";
+        $utf_natural_url = 'http://example.com/' . $utf_text;
+        $utf_encoded_url = 'http://example.com/' . urlencode($utf_text);
+        $euc_encoded_url = 'http://example.com/' . urlencode(mb_convert_encoding($utf_text, 'EUC-JP', 'UTF-8'));
 
-        $this->assertStringEndsWith(">{$utf_Natural_Url}</a>", $parser->parse_Paragraph("<{$utf_Natural_Url}>"), 'Natural UTF-8 URL needs no conversion.');
-        $this->assertStringEndsWith(">{$utf_Natural_Url}</a>", $parser->parse_Paragraph("<{$utf_Encoded_Url}>"), 'Encoded UTF-8 URL will be converted to readable format.');
-        $this->assertStringEndsWith(">{$euc_Encoded_Url}</a>", $parser->parse_Paragraph("<{$euc_Encoded_Url}>"), 'Non UTF-8 URL should never be converted.');
-        // See: \cebe\markdown\inline\Link_Trait::render_Url
+        $this->assertStringEndsWith(">{$utf_natural_url}</a>", $parser->parse_paragraph("<{$utf_natural_url}>"), 'Natural UTF-8 URL needs no conversion.');
+        $this->assertStringEndsWith(">{$utf_natural_url}</a>", $parser->parse_paragraph("<{$utf_encoded_url}>"), 'Encoded UTF-8 URL will be converted to readable format.');
+        $this->assertStringEndsWith(">{$euc_encoded_url}</a>", $parser->parse_paragraph("<{$euc_encoded_url}>"), 'Non UTF-8 URL should never be converted.');
+        // See: \cebe\markdown\inline\Link_Trait::render_url
     }
 }

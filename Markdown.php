@@ -18,18 +18,18 @@ class Markdown extends Parser
     use block\Code_Trait;
     use block\Headline_Trait;
     use block\Html_Trait {
-        parse_Inline_Html as private;
+        parse_inline_html as private;
     }
     use block\List_Trait {
         // Check Ul List before headline
-        identify_Ul as protected identify_B_Ul;
-        consume_Ul as protected consume_B_Ul;
+        identify_ul as protected identify_b_ul;
+        consume_ul as protected consume_b_ul;
     }
     use block\Quote_Trait;
     use block\Rule_Trait {
         // Check Hr before checking lists
-        identify_Hr as protected identify_A_Hr;
-        consume_Hr as protected consume_A_Hr;
+        identify_hr as protected identify_a_hr;
+        consume_hr as protected consume_a_hr;
     }
 
     // include inline element parsing using traits
@@ -48,7 +48,7 @@ class Markdown extends Parser
      * backslash, the character will be outputted without the backslash and is not interpreted
      * as markdown.
      */
-    protected $escape_Characters = [
+    protected $escape_characters = [
         '\\', // backslash
         '`', // backtick
         '*', // asterisk
@@ -78,7 +78,7 @@ class Markdown extends Parser
      *
      * Allow headlines and code to break paragraphs
      */
-    protected function consume_Paragraph($lines, $current)
+    protected function consume_paragraph($lines, $current)
     {
         // consume until newline
         $content = [];
@@ -87,12 +87,12 @@ class Markdown extends Parser
 
             // a list may break a paragraph when it is inside of a list
             if (isset($this->context[1]) && $this->context[1] === 'list' && !ctype_alpha($line[0]) && (
-                $this->identify_Ul($line, $lines, $i) || $this->identify_Ol($line, $lines, $i)
+                $this->identify_ul($line, $lines, $i) || $this->identify_ol($line, $lines, $i)
             )) {
                 break;
             }
 
-            if ($line === '' || ltrim($line) === '' || $this->identify_Headline($line, $lines, $i)) {
+            if ($line === '' || ltrim($line) === '' || $this->identify_headline($line, $lines, $i)) {
                 break;
             } elseif ($line[0] === "\t" || $line[0] === ' ' && strncmp($line, '    ', 4) === 0) {
                 // possible beginning of a code block
@@ -110,7 +110,7 @@ class Markdown extends Parser
         }
         $block = [
             'paragraph',
-            'content' => $this->parse_Inline(implode("\n", $content)),
+            'content' => $this->parse_inline(implode("\n", $content)),
         ];
         return [$block, --$i];
     }
@@ -120,7 +120,7 @@ class Markdown extends Parser
      *
      * Parses a newline indicated by two spaces on the end of a markdown line.
      */
-    protected function render_Text($text)
+    protected function render_text($text)
     {
         return str_replace("  \n", $this->html5 ? "<br>\n" : "<br />\n", $text[1]);
     }

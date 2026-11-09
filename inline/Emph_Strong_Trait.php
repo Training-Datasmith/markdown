@@ -17,7 +17,7 @@ trait Emph_Strong_Trait
      * @marker _
      * @marker *
      */
-    protected function parse_Emph_Strong($text)
+    protected function parse_emph_strong($text)
     {
         $marker = $text[0];
 
@@ -40,7 +40,7 @@ trait Emph_Strong_Trait
                 return [
                     [
                         'strong',
-                        $this->parse_Inline($matches[1]),
+                        $this->parse_inline($matches[1]),
                     ],
                     strlen($matches[0]),
                 ];
@@ -63,7 +63,7 @@ trait Emph_Strong_Trait
                 return [
                     [
                         'emph',
-                        $this->parse_Inline($matches[1]),
+                        $this->parse_inline($matches[1]),
                     ],
                     strlen($matches[0]),
                 ];
@@ -72,16 +72,16 @@ trait Emph_Strong_Trait
         return [['text', $text[0]], 1];
     }
 
-    protected function render_Strong($block)
+    protected function render_strong($block)
     {
-        return '<strong>' . $this->render_Absy($block[1]) . '</strong>';
+        return '<strong>' . $this->render_absy($block[1]) . '</strong>';
     }
 
-    protected function render_Emph($block)
+    protected function render_emph($block)
     {
-        return '<em>' . $this->render_Absy($block[1]) . '</em>';
+        return '<em>' . $this->render_absy($block[1]) . '</em>';
     }
 
-    abstract protected function parse_Inline($text);
-    abstract protected function render_Absy($blocks);
+    abstract protected function parse_inline($text);
+    abstract protected function render_absy($blocks);
 }

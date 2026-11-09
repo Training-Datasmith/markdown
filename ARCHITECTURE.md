@@ -32,12 +32,12 @@ bin/
 
 - **Trait-based composition**: Block and inline element parsers are implemented as PHP traits. Subclasses select capabilities by `use`-ing traits, and can alias/override individual `identify*` and `consume*` methods to resolve conflicts
 - **Two-pass parsing**: Block structure is identified first; inline markup within blocks is parsed in a second pass
-- **No regex-heavy dispatch**: The parser indexes blocks by their first character, calling `identifyXxx()` methods only for matching characters, which is faster than a cascade of regexes
+- **No regex-heavy dispatch**: The parser indexes blocks by their first character, calling `identify_xxx()` methods only for matching characters, which is faster than a cascade of regexes
 
 ## Extension Points
 
-- Implement a new `block\MyTrait` with `identifyXxx()` and `consumeXxx()` methods, then `use` it in a subclass of `Markdown`
-- Override `renderXxx()` methods to change HTML output
+- Implement a new `block\MyTrait` with `identify_xxx()` and `consume_xxx()` methods, then `use` it in a subclass of `Markdown`
+- Override `render_xxx()` methods to change HTML output
 
 ## Dependency Flow
 

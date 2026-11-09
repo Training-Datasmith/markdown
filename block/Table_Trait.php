@@ -15,7 +15,7 @@ trait Table_Trait
     /**
      * identify a line as the beginning of a table block.
      */
-    protected function identify_Table($line, array $lines, $current)
+    protected function identify_table($line, array $lines, $current)
     {
         return strpos($line, '|') !== false && isset($lines[$current + 1])
             && preg_match('~^\\s*\\|?(\\s*:?-[\\-\\s]*:?\\s*\\|?)*\\s*$~', $lines[$current + 1])
@@ -26,7 +26,7 @@ trait Table_Trait
     /**
      * Consume lines for a table
      */
-    protected function consume_Table(array $lines, $current)
+    protected function consume_table(array $lines, $current)
     {
         // consume until newline
 
@@ -73,7 +73,7 @@ trait Table_Trait
             }
 
             array_unshift($this->context, 'table');
-            $row = $this->parse_Inline($line);
+            $row = $this->parse_inline($line);
             array_shift($this->context);
 
             $r = count($block['rows']);
@@ -83,7 +83,7 @@ trait Table_Trait
                 if (!isset($block['rows'][$r][$c])) {
                     $block['rows'][$r][] = [];
                 }
-                if ($absy[0] === 'table_Boundary') {
+                if ($absy[0] === 'table_boundary') {
                     $c++;
                 } else {
                     $block['rows'][$r][$c][] = $absy;
@@ -97,18 +97,18 @@ trait Table_Trait
     /**
      * render a table block
      */
-    protected function render_Table(array $block)
+    protected function render_table(array $block)
     {
         $head = '';
         $body = '';
         $cols = $block['cols'];
         $first = true;
         foreach ($block['rows'] as $row) {
-            $cell_Tag = $first ? 'th' : 'td';
+            $cell_tag = $first ? 'th' : 'td';
             $tds = '';
             foreach ($row as $c => $cell) {
                 $align = empty($cols[$c]) ? '' : ' align="' . $cols[$c] . '"';
-                $tds .= "<$cell_Tag$align>" . trim($this->render_Absy($cell)) . "</$cell_Tag>";
+                $tds .= "<$cell_tag$align>" . trim($this->render_absy($cell)) . "</$cell_tag>";
             }
             if ($first) {
                 $head .= "<tr>$tds</tr>\n";
@@ -117,7 +117,7 @@ trait Table_Trait
             }
             $first = false;
         }
-        return $this->compose_Table($head, $body);
+        return $this->compose_table($head, $body);
     }
 
     /**
@@ -135,7 +135,7 @@ trait Table_Trait
      * @return string the complete table HTML.
      * @since 1.2.0
      */
-    protected function compose_Table($head, $body)
+    protected function compose_table($head, $body)
     {
         return "<table>\n<thead>\n$head</thead>\n<tbody>\n$body</tbody>\n</table>\n";
     }
@@ -143,14 +143,14 @@ trait Table_Trait
     /**
      * @marker |
      */
-    protected function parse_Td($markdown)
+    protected function parse_td($markdown)
     {
         if (isset($this->context[1]) && $this->context[1] === 'table') {
-            return [['table_Boundary'], isset($markdown[1]) && $markdown[1] === ' ' ? 2 : 1];
+            return [['table_boundary'], isset($markdown[1]) && $markdown[1] === ' ' ? 2 : 1];
         }
         return [['text', $markdown[0]], 1];
     }
 
-    abstract protected function parse_Inline($text);
-    abstract protected function render_Absy($absy);
+    abstract protected function parse_inline($text);
+    abstract protected function render_absy($absy);
 }

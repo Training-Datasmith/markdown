@@ -31,7 +31,7 @@ abstract class Parser
      * backslash, the character will be outputted without the backslash and is not interpreted
      * as markdown.
      */
-    protected $escape_Characters = [
+    protected $escape_characters = [
         '\\', // backslash
     ];
 
@@ -55,10 +55,10 @@ abstract class Parser
 
         $text = str_replace(["\r\n", "\n\r", "\r"], "\n", $text);
 
-        $this->prepare_Markers($text);
+        $this->prepare_markers($text);
 
-        $absy = $this->parse_Blocks(explode("\n", $text));
-        $markup = $this->render_Absy($absy);
+        $absy = $this->parse_blocks(explode("\n", $text));
+        $markup = $this->render_absy($absy);
 
         $this->cleanup();
         return $markup;
@@ -70,7 +70,7 @@ abstract class Parser
      * @param string $text the text to parse
      * @return string parsed markup
      */
-    public function parse_Paragraph($text)
+    public function parse_paragraph($text)
     {
         $this->prepare();
 
@@ -80,17 +80,17 @@ abstract class Parser
 
         $text = str_replace(["\r\n", "\n\r", "\r"], "\n", $text);
 
-        $this->prepare_Markers($text);
+        $this->prepare_markers($text);
 
-        $absy = $this->parse_Inline($text);
-        $markup = $this->render_Absy($absy);
+        $absy = $this->parse_inline($text);
+        $markup = $this->render_absy($absy);
 
         $this->cleanup();
         return $markup;
     }
 
     /**
-     * This method will be called before `parse()` and `parse_Paragraph()`.
+     * This method will be called before `parse()` and `parse_paragraph()`.
      * You can override it to do some initialization work.
      */
     protected function prepare()
@@ -98,7 +98,7 @@ abstract class Parser
     }
 
     /**
-     * This method will be called after `parse()` and `parse_Paragraph()`.
+     * This method will be called after `parse()` and `parse_paragraph()`.
      * You can override it to do cleanup.
      */
     protected function cleanup()
@@ -112,7 +112,7 @@ abstract class Parser
     /**
      * @return array a list of block element types available.
      */
-    protected function block_Types()
+    protected function block_types()
     {
         if ($this->_block_types === null) {
             // detect block types via "identify" functions
@@ -133,13 +133,13 @@ abstract class Parser
      * @param integer $current
      * @return string name of the block type in lower case
      */
-    protected function detect_Line_Type($lines, $current)
+    protected function detect_line_type($lines, $current)
     {
         $line = $lines[$current];
-        $block_Types = $this->block_Types();
-        foreach ($block_Types as $blockType) {
-            if ($this->{'identify_' . $blockType}($line, $lines, $current)) {
-                return $blockType;
+        $block_types = $this->block_types();
+        foreach ($block_types as $block_type) {
+            if ($this->{'identify_' . $block_type}($line, $lines, $current)) {
+                return $block_type;
             }
         }
         // consider the line a normal paragraph if no other block type matches
@@ -147,10 +147,10 @@ abstract class Parser
     }
 
     /**
-     * Parse block elements by calling `detect_Line_Type()` to identify them
+     * Parse block elements by calling `detect_line_type()` to identify them
      * and call consume function afterwards.
      */
-    protected function parse_Blocks($lines)
+    protected function parse_blocks($lines)
     {
         if ($this->_depth >= $this->maximum_nesting_level) {
             // maximum depth is reached, do not parse input
@@ -165,7 +165,7 @@ abstract class Parser
             $line = $lines[$i];
             if ($line !== '' && rtrim($line) !== '') { // skip empty lines
                 // identify a blocks beginning and parse the content
-                list($block, $i) = $this->parse_Block($lines, $i);
+                list($block, $i) = $this->parse_block($lines, $i);
                 if ($block !== false) {
                     $blocks[] = $block;
                 }
@@ -184,16 +184,16 @@ abstract class Parser
      * @return array Array of two elements, the first element contains the block,
      * the second contains the next line index to be parsed.
      */
-    protected function parse_Block($lines, $current)
+    protected function parse_block($lines, $current)
     {
         // identify block type for this line
-        $blockType = $this->detect_Line_Type($lines, $current);
+        $block_type = $this->detect_line_type($lines, $current);
 
         // call consume method for the detected block type to consume further lines
-        return $this->{'consume_' . $blockType}($lines, $current);
+        return $this->{'consume_' . $block_type}($lines, $current);
     }
 
-    protected function render_Absy($blocks)
+    protected function render_absy($blocks)
     {
         $output = '';
         foreach ($blocks as $block) {
@@ -211,7 +211,7 @@ abstract class Parser
      * @param $current
      * @return array
      */
-    protected function consume_Paragraph($lines, $current)
+    protected function consume_paragraph($lines, $current)
     {
         // consume until newline
         $content = [];
@@ -224,7 +224,7 @@ abstract class Parser
         }
         $block = [
             'paragraph',
-            'content' => $this->parse_Inline(implode("\n", $content)),
+            'content' => $this->parse_inline(implode("\n", $content)),
         ];
         return [$block, --$i];
     }
@@ -235,9 +235,9 @@ abstract class Parser
      * @param $block
      * @return string
      */
-    protected function render_Paragraph($block)
+    protected function render_paragraph($block)
     {
-        return '<p>' . $this->render_Absy($block['content']) . "</p>\n";
+        return '<p>' . $this->render_absy($block['content']) . "</p>\n";
     }
 
     // inline parsing
@@ -245,7 +245,7 @@ abstract class Parser
     /**
      * @var array the set of inline markers to use in different contexts.
      */
-    private $_inline_Markers = [];
+    private $_inline_markers = [];
 
     /**
      * Returns a map of inline markers to the corresponding parser methods.
@@ -255,7 +255,7 @@ abstract class Parser
      * starting at the position of the marker.
      *
      * Note that markers starting with whitespace may slow down the parser,
-     * you may want to use [[render_Text]] to deal with them.
+     * you may want to use [[render_text]] to deal with them.
      *
      * You may override this method to define a set of markers and parsing methods.
      * The default implementation looks for protected methods starting with `parse` that
@@ -263,21 +263,21 @@ abstract class Parser
      *
      * @return array a map of markers to parser methods
      */
-    protected function inline_Markers()
+    protected function inline_markers()
     {
         $markers = [];
         // detect "parse" functions
         $reflection = new \ReflectionClass($this);
         foreach ($reflection->getMethods(ReflectionMethod::IS_PROTECTED) as $method) {
-            $methodName = $method->getName();
-            if (strncmp($methodName, 'parse', 5) === 0) {
-                $docComment = $method->getDocComment();
-                if ($docComment === false) {
+            $method_name = $method->getName();
+            if (strncmp($method_name, 'parse', 5) === 0) {
+                $doc_comment = $method->getDocComment();
+                if ($doc_comment === false) {
                     continue;
                 }
-                preg_match_all('/@marker ([^\s]+)/', $docComment, $matches);
+                preg_match_all('/@marker ([^\s]+)/', $doc_comment, $matches);
                 foreach ($matches[1] as $match) {
-                    $markers[$match] = $methodName;
+                    $markers[$match] = $method_name;
                 }
             }
         }
@@ -288,13 +288,13 @@ abstract class Parser
      * Prepare markers that are used in the text to parse
      *
      * Add all markers that are present in markdown.
-     * Check is done to avoid iterations in parse_Inline(), good for huge markdown files
+     * Check is done to avoid iterations in parse_inline(), good for huge markdown files
      * @param string $text
      */
-    protected function prepare_Markers($text)
+    protected function prepare_markers($text)
     {
         $this->_inline_Markers = [];
-        foreach ($this->inline_Markers() as $marker => $method) {
+        foreach ($this->inline_markers() as $marker => $method) {
             if (strpos($text, $marker) !== false) {
                 $m = $marker[0];
                 // put the longest marker first
@@ -316,7 +316,7 @@ abstract class Parser
      * @param string $text the inline text to parse.
      * @return array
      */
-    protected function parse_Inline($text)
+    protected function parse_inline($text)
     {
         if ($this->_depth >= $this->maximum_nesting_level) {
             // maximum depth is reached, do not parse input
@@ -369,9 +369,9 @@ abstract class Parser
      * Parses escaped special characters.
      * @marker \
      */
-    protected function parse_Escape($text)
+    protected function parse_escape($text)
     {
-        if (isset($text[1]) && in_array($text[1], $this->escape_Characters)) {
+        if (isset($text[1]) && in_array($text[1], $this->escape_characters)) {
             return [['text', $text[1]], 2];
         }
         return [['text', $text[0]], 1];
@@ -382,7 +382,7 @@ abstract class Parser
      * It can be used to work on normal text sections for example to highlight keywords or
      * do special escaping.
      */
-    protected function render_Text($block)
+    protected function render_text($block)
     {
         return $block[1];
     }

@@ -26,12 +26,12 @@ class Github_Markdown extends Markdown
      * @var boolean whether to interpret newlines as `<br />`-tags.
      * This feature is useful for comments where newlines are often meant to be real new lines.
      */
-    public $enable_Newlines = false;
+    public $enable_newlines = false;
 
     /**
      * @inheritDoc
      */
-    protected $escape_Characters = [
+    protected $escape_characters = [
         // from Markdown
         '\\', // backslash
         '`', // backtick
@@ -56,7 +56,7 @@ class Github_Markdown extends Markdown
      *
      * Allow headlines, lists and code to break paragraphs
      */
-    protected function consume_Paragraph($lines, $current)
+    protected function consume_paragraph($lines, $current)
     {
         // consume until newline
         $content = [];
@@ -65,15 +65,15 @@ class Github_Markdown extends Markdown
             if ($line === ''
                 || ltrim($line) === ''
                 || !ctype_alpha($line[0]) && (
-                    $this->identify_Quote($line, $lines, $i) ||
-                    $this->identify_Fenced_Code($line, $lines, $i) ||
-                    $this->identify_Ul($line, $lines, $i) ||
-                    $this->identify_Ol($line, $lines, $i) ||
-                    $this->identify_Hr($line, $lines, $i)
+                    $this->identify_quote($line, $lines, $i) ||
+                    $this->identify_fenced_code($line, $lines, $i) ||
+                    $this->identify_ul($line, $lines, $i) ||
+                    $this->identify_ol($line, $lines, $i) ||
+                    $this->identify_hr($line, $lines, $i)
                 )
-                || $this->identify_Headline($line, $lines, $i)) {
+                || $this->identify_headline($line, $lines, $i)) {
                 break;
-            } elseif ($this->identify_Code($line, $lines, $i)) {
+            } elseif ($this->identify_code($line, $lines, $i)) {
                 // possible beginning of a code block
                 // but check for continued inline HTML
                 // e.g. <img src="file.jpg"
@@ -89,7 +89,7 @@ class Github_Markdown extends Markdown
         }
         $block = [
             'paragraph',
-            'content' => $this->parse_Inline(implode("\n", $content)),
+            'content' => $this->parse_inline(implode("\n", $content)),
         ];
         return [$block, --$i];
     }
@@ -99,12 +99,12 @@ class Github_Markdown extends Markdown
      *
      * Parses a newline indicated by two spaces on the end of a markdown line.
      */
-    protected function render_Text($text)
+    protected function render_text($text)
     {
-        if ($this->enable_Newlines) {
+        if ($this->enable_newlines) {
             $br = $this->html5 ? "<br>\n" : "<br />\n";
             return strtr($text[1], ["  \n" => $br, "\n" => $br]);
         }
-        return parent::render_Text($text);
+        return parent::render_text($text);
     }
 }

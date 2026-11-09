@@ -15,7 +15,7 @@ trait Headline_Trait
     /**
      * identify a line as a headline
      */
-    protected function identify_Headline($line, array $lines, $current)
+    protected function identify_headline($line, array $lines, $current)
     {
         return (
             // heading with #
@@ -31,7 +31,7 @@ trait Headline_Trait
     /**
      * Consume lines for a headline
      */
-    protected function consume_Headline(array $lines, $current)
+    protected function consume_headline(array $lines, $current)
     {
         if ($lines[$current][0] === '#') {
             // ATX headline
@@ -41,7 +41,7 @@ trait Headline_Trait
             }
             $block = [
                 'headline',
-                'content' => $this->parse_Inline(trim($lines[$current], "# \t")),
+                'content' => $this->parse_inline(trim($lines[$current], "# \t")),
                 'level' => $level,
             ];
             return [$block, $current];
@@ -49,7 +49,7 @@ trait Headline_Trait
         // underlined headline
         $block = [
                 'headline',
-                'content' => $this->parse_Inline($lines[$current]),
+                'content' => $this->parse_inline($lines[$current]),
                 'level' => $lines[$current + 1][0] === '=' ? 1 : 2,
             ];
         return [$block, $current + 1];
@@ -58,12 +58,12 @@ trait Headline_Trait
     /**
      * Renders a headline
      */
-    protected function render_Headline(array $block)
+    protected function render_headline(array $block)
     {
         $tag = 'h' . $block['level'];
-        return "<$tag>" . $this->render_Absy($block['content']) . "</$tag>\n";
+        return "<$tag>" . $this->render_absy($block['content']) . "</$tag>\n";
     }
 
-    abstract protected function parse_Inline($text);
-    abstract protected function render_Absy($absy);
+    abstract protected function parse_inline($text);
+    abstract protected function render_absy($absy);
 }

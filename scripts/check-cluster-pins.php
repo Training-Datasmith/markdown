@@ -16,27 +16,27 @@ const FORK_URL_MARKER = 'github.com/Training-Datasmith/';
 
 function load_installed_php(string $root): array
 {
-    $installedPhp = $root . '/vendor/composer/installed.php';
-    if (!is_readable($installedPhp)) {
+    $installed_php = $root . '/vendor/composer/installed.php';
+    if (!is_readable($installed_php)) {
         fwrite(STDERR, "check-cluster-pins: vendor/composer/installed.php not found; run composer update first.\n");
         exit(1);
     }
 
     /** @var array{versions?: array<string, array<string, mixed>>} $installed */
-    $installed = require $installedPhp;
+    $installed = require $installed_php;
 
     return $installed['versions'] ?? [];
 }
 
 function load_installed_json_packages(string $root): array
 {
-    $installedJson = $root . '/vendor/composer/installed.json';
-    if (!is_readable($installedJson)) {
+    $installed_json = $root . '/vendor/composer/installed.json';
+    if (!is_readable($installed_json)) {
         fwrite(STDERR, "check-cluster-pins: vendor/composer/installed.json not found; run composer update first.\n");
         exit(1);
     }
 
-    $raw = file_get_contents($installedJson);
+    $raw = file_get_contents($installed_json);
     if ($raw === false) {
         fwrite(STDERR, "check-cluster-pins: could not read installed.json.\n");
         exit(1);
@@ -50,59 +50,59 @@ function load_installed_json_packages(string $root): array
     }
     $packages = array_merge($data['packages'] ?? [], $data['packages-dev'] ?? []);
 
-  /** @var array<string, array<string, mixed>> $byName */
-    $byName = [];
+  /** @var array<string, array<string, mixed>> $by_name */
+    $by_name = [];
     foreach ($packages as $package) {
         if (!isset($package['name'])) {
             continue;
         }
-        $byName[(string) $package['name']] = $package;
+        $by_name[(string) $package['name']] = $package;
     }
 
-    return $byName;
+    return $by_name;
 }
 
 /**
- * @param array<string, mixed> $installedPhpVersions
- * @param array<string, array<string, mixed>> $jsonPackages
+ * @param array<string, mixed> $installed_php_versions
+ * @param array<string, array<string, mixed>> $json_packages
  */
-function assert_example_pin(array $installedPhpVersions, array $jsonPackages): bool
+function assert_example_pin(array $installed_php_versions, array $json_packages): bool
 {
     $name = 'example/cluster-pin';
     $alias = '8.5.52';
-    $goodRef = '0123456789abcdef0123456789abcdef01234567';
+    $good_ref = '0123456789abcdef0123456789abcdef01234567';
 
-    $phpVersions = $installedPhpVersions;
-    $phpVersions[$name] = [
-        'reference' => $goodRef,
+    $php_versions = $installed_php_versions;
+    $php_versions[$name] = [
+        'reference' => $good_ref,
         'aliases' => [$alias],
     ];
 
-    $json = $jsonPackages;
+    $json = $json_packages;
     $json[$name] = [
         'name' => $name,
-        'source' => ['reference' => $goodRef],
+        'source' => ['reference' => $good_ref],
     ];
 
-    if (!assert_expected_org_package($name, $alias, $goodRef, $phpVersions, $json)) {
+    if (!assert_expected_org_package($name, $alias, $good_ref, $php_versions, $json)) {
         fwrite(STDERR, "check-cluster-pins: wrong-SHA demo failed to accept valid example pin.\n");
         return false;
     }
 
-    $bad = $phpVersions;
+    $bad = $php_versions;
     $bad[$name]['reference'] = 'ffffffffffffffffffffffffffffffffffffffff';
-    if (assert_expected_org_package($name, $alias, $goodRef, $bad, $json, true)) {
+    if (assert_expected_org_package($name, $alias, $good_ref, $bad, $json, true)) {
         fwrite(STDERR, "check-cluster-pins: wrong-SHA demo did not reject installed.php reference.\n");
         return false;
     }
     fwrite(STDOUT, "check-cluster-pins: wrong-SHA demo rejected installed.php reference\n");
 
-    $badJson = $jsonPackages;
-    $badJson[$name] = [
+    $bad_json = $json_packages;
+    $bad_json[$name] = [
         'name' => $name,
         'source' => ['reference' => 'ffffffffffffffffffffffffffffffffffffffff'],
     ];
-    if (assert_expected_org_package($name, $alias, $goodRef, $phpVersions, $badJson, true)) {
+    if (assert_expected_org_package($name, $alias, $good_ref, $php_versions, $bad_json, true)) {
         fwrite(STDERR, "check-cluster-pins: wrong-SHA demo did not reject installed.json source.reference.\n");
         return false;
     }
@@ -112,15 +112,15 @@ function assert_example_pin(array $installedPhpVersions, array $jsonPackages): b
 }
 
 /**
- * @param array<string, array<string, mixed>> $installedPhpVersions
- * @param array<string, array<string, mixed>> $jsonPackages
+ * @param array<string, array<string, mixed>> $installed_php_versions
+ * @param array<string, array<string, mixed>> $json_packages
  */
 function assert_expected_org_package(
     string $name,
     string $alias,
-    string $expectedRef,
-    array $installedPhpVersions,
-    array $jsonPackages,
+    string $expected_ref,
+    array $installed_php_versions,
+    array $json_packages,
     bool $quiet = false
 ): bool {
     $failed = false;
@@ -130,12 +130,12 @@ function assert_expected_org_package(
         }
     };
 
-    if (!isset($installedPhpVersions[$name])) {
+    if (!isset($installed_php_versions[$name])) {
         $stderr(sprintf("check-cluster-pins: %s is not installed (installed.php).\n", $name));
         return false;
     }
 
-    $pkg = $installedPhpVersions[$name];
+    $pkg = $installed_php_versions[$name];
     $aliases = $pkg['aliases'] ?? [];
     if (!is_array($aliases) || !in_array($alias, $aliases, true)) {
         $stderr(sprintf(
@@ -151,27 +151,27 @@ function assert_expected_org_package(
     if (!is_string($reference) || $reference === '') {
         $stderr(sprintf("check-cluster-pins: %s has no reference in installed.php.\n", $name));
         $failed = true;
-    } elseif (!hash_equals($expectedRef, $reference)) {
+    } elseif (!hash_equals($expected_ref, $reference)) {
         $stderr(sprintf(
             "check-cluster-pins: %s installed.php reference mismatch (expected %s, got %s).\n",
             $name,
-            $expectedRef,
+            $expected_ref,
             $reference
         ));
         $failed = true;
     }
 
-    if (!isset($jsonPackages[$name]['source']['reference'])) {
+    if (!isset($json_packages[$name]['source']['reference'])) {
         $stderr(sprintf("check-cluster-pins: %s missing source.reference in installed.json.\n", $name));
         $failed = true;
     } else {
-        $jsonRef = (string) $jsonPackages[$name]['source']['reference'];
-        if (!hash_equals($expectedRef, $jsonRef)) {
+        $json_ref = (string) $json_packages[$name]['source']['reference'];
+        if (!hash_equals($expected_ref, $json_ref)) {
             $stderr(sprintf(
                 "check-cluster-pins: %s installed.json reference mismatch (expected %s, got %s).\n",
                 $name,
-                $expectedRef,
-                $jsonRef
+                $expected_ref,
+                $json_ref
             ));
             $failed = true;
         }
@@ -181,15 +181,15 @@ function assert_expected_org_package(
 }
 
 /**
- * @param array<string, array<string, mixed>> $installedPhpVersions
- * @param array<string, array<string, mixed>> $jsonPackages
+ * @param array<string, array<string, mixed>> $installed_php_versions
+ * @param array<string, array<string, mixed>> $json_packages
  */
-function assert_no_org_forks_and_packagist_phpunit(array $installedPhpVersions, array $jsonPackages): bool
+function assert_no_org_forks_and_packagist_phpunit(array $installed_php_versions, array $json_packages): bool
 {
     $failed = false;
-    $orgCount = 0;
+    $org_count = 0;
 
-    foreach ($jsonPackages as $name => $package) {
+    foreach ($json_packages as $name => $package) {
         if ($name === '__root__' || $name === 'cebe/markdown') {
             continue;
         }
@@ -198,17 +198,17 @@ function assert_no_org_forks_and_packagist_phpunit(array $installedPhpVersions, 
         $url = isset($source['url']) ? (string) $source['url'] : '';
         if (strpos($url, FORK_URL_MARKER) !== false) {
             fwrite(STDERR, sprintf("check-cluster-pins: unexpected org fork installed: %s (%s)\n", $name, $url));
-            ++$orgCount;
+            ++$org_count;
             $failed = true;
         }
     }
 
-    if (!isset($installedPhpVersions['phpunit/phpunit'])) {
+    if (!isset($installed_php_versions['phpunit/phpunit'])) {
         fwrite(STDERR, "check-cluster-pins: phpunit/phpunit is not installed.\n");
         return false;
     }
 
-    $phpunit = $installedPhpVersions['phpunit/phpunit'];
+    $phpunit = $installed_php_versions['phpunit/phpunit'];
     $reference = isset($phpunit['reference']) ? (string) $phpunit['reference'] : '';
     $aliases = $phpunit['aliases'] ?? [];
     if (!is_array($aliases) || $aliases !== []) {
@@ -226,36 +226,36 @@ function assert_no_org_forks_and_packagist_phpunit(array $installedPhpVersions, 
         }
     }
 
-    $jsonPhpunit = $jsonPackages['phpunit/phpunit'] ?? null;
-    if (!is_array($jsonPhpunit)) {
+    $json_phpunit = $json_packages['phpunit/phpunit'] ?? null;
+    if (!is_array($json_phpunit)) {
         fwrite(STDERR, "check-cluster-pins: phpunit/phpunit missing from installed.json.\n");
         return false;
     }
 
-    $jsonUrl = (string) ($jsonPhpunit['source']['url'] ?? '');
-    if (strpos($jsonUrl, 'github.com/sebastianbergmann/phpunit') === false) {
-        fwrite(STDERR, sprintf("check-cluster-pins: phpunit/phpunit source url is not Packagist upstream: %s\n", $jsonUrl));
+    $json_url = (string) ($json_phpunit['source']['url'] ?? '');
+    if (strpos($json_url, 'github.com/sebastianbergmann/phpunit') === false) {
+        fwrite(STDERR, sprintf("check-cluster-pins: phpunit/phpunit source url is not Packagist upstream: %s\n", $json_url));
         $failed = true;
     }
 
-    $jsonRef = (string) ($jsonPhpunit['source']['reference'] ?? '');
-    if ($reference !== '' && $jsonRef !== '' && !hash_equals($reference, $jsonRef)) {
+    $json_ref = (string) ($json_phpunit['source']['reference'] ?? '');
+    if ($reference !== '' && $json_ref !== '' && !hash_equals($reference, $json_ref)) {
         fwrite(STDERR, sprintf(
             "check-cluster-pins: phpunit/phpunit reference mismatch installed.php=%s installed.json=%s\n",
             $reference,
-            $jsonRef
+            $json_ref
         ));
         $failed = true;
     }
 
     foreach (ORG_FORBIDDEN_REFS as $forbidden) {
-        if (strcasecmp($jsonRef, $forbidden) === 0) {
+        if (strcasecmp($json_ref, $forbidden) === 0) {
             fwrite(STDERR, "check-cluster-pins: phpunit/phpunit installed.json points at org fork SHA.\n");
             $failed = true;
         }
     }
 
-    $version = (string) ($jsonPhpunit['version'] ?? $phpunit['pretty_version'] ?? '');
+    $version = (string) ($json_phpunit['version'] ?? $phpunit['pretty_version'] ?? '');
     if (!preg_match('/^8\.5\.(5[2-9]|[6-9]\d)$/', $version)) {
         fwrite(STDERR, sprintf("check-cluster-pins: phpunit/phpunit version %s is outside patched 8.5.x line.\n", $version));
         $failed = true;
@@ -267,7 +267,7 @@ function assert_no_org_forks_and_packagist_phpunit(array $installedPhpVersions, 
 
     fwrite(STDOUT, sprintf(
         "check-cluster-pins: %d org pins matched; phpunit/phpunit %s from Packagist (not an org fork)\n",
-        $orgCount,
+        $org_count,
         $version
     ));
 
@@ -275,14 +275,14 @@ function assert_no_org_forks_and_packagist_phpunit(array $installedPhpVersions, 
 }
 
 $root = dirname(__DIR__);
-$installedPhp = load_installed_php($root);
-$jsonPackages = load_installed_json_packages($root);
+$installed_php = load_installed_php($root);
+$json_packages = load_installed_json_packages($root);
 
-if (!assert_example_pin($installedPhp, $jsonPackages)) {
+if (!assert_example_pin($installed_php, $json_packages)) {
     exit(1);
 }
 
-if (!assert_no_org_forks_and_packagist_phpunit($installedPhp, $jsonPackages)) {
+if (!assert_no_org_forks_and_packagist_phpunit($installed_php, $json_packages)) {
     exit(1);
 }
 

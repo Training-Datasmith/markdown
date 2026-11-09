@@ -19,7 +19,7 @@ trait Fenced_Code_Trait
     /**
      * identify a line as the beginning of a fenced code block.
      */
-    protected function identify_Fenced_Code($line)
+    protected function identify_fenced_code($line)
     {
         return ($line[0] === '`' && strncmp($line, '```', 3) === 0) ||
                ($line[0] === '~' && strncmp($line, '~~~', 3) === 0) ||
@@ -32,7 +32,7 @@ trait Fenced_Code_Trait
     /**
      * Consume lines for a fenced code block
      */
-    protected function consume_Fenced_Code(array $lines, $current)
+    protected function consume_fenced_code(array $lines, $current)
     {
         $line = ltrim($lines[$current]);
         $fence = substr($line, 0, $pos = strrpos($line, $line[0]) + 1);

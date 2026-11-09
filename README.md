@@ -86,7 +86,7 @@ one of the following:
 - Markdown Extra: `$parser = new \cebe\markdown\Markdown_Extra();`
 
 The next step is to call the `parse()`-method for parsing the text using the full markdown language
-or calling the `parse_Paragraph()`-method to parse only inline elements.
+or calling the `parse_paragraph()`-method to parse only inline elements.
 
 Here are some examples:
 
@@ -105,7 +105,7 @@ echo $parser->parse($markdown);
 
 // parse only inline elements (useful for one-line descriptions)
 $parser = new \cebe\markdown\Github_Markdown();
-echo $parser->parse_Paragraph($markdown);
+echo $parser->parse_paragraph($markdown);
 ```
 
 You may optionally set one of the following options on the parser object:
@@ -113,12 +113,12 @@ You may optionally set one of the following options on the parser object:
 For all Markdown Flavors:
 
 - `$parser->html5 = true` to enable HTML5 output instead of HTML4.
-- `$parser->keep_List_Start_Number = true` to enable keeping the numbers of ordered lists as specified in the markdown.
+- `$parser->keep_list_start_number = true` to enable keeping the numbers of ordered lists as specified in the markdown.
   The default behavior is to always start from 1 and increment by one regardless of the number in markdown.
 
 For Github_Markdown:
 
-- `$parser->enable_Newlines = true` to convert all newlines to `<br/>`-tags. By default only newlines with two preceding spaces are converted to `<br/>`-tags. 
+- `$parser->enable_newlines = true` to convert all newlines to `<br/>`-tags. By default only newlines with two preceding spaces are converted to `<br/>`-tags. 
 
 It is recommended to use UTF-8 encoding for the input strings. Other encodings may work, but are currently untested.
 
@@ -253,9 +253,9 @@ In the following example we will implement support for [fenced code blocks][] wh
 ```php
 <?php
 
-class MyMarkdown extends \cebe\markdown\Markdown
+class My_Markdown extends \cebe\markdown\Markdown
 {
-	protected function identify_Fenced_Code($line, $lines, $current)
+	protected function identify_fenced_code($line, $lines, $current)
 	{
 		// if a line starts with at least 3 backticks it is identified as a fenced code block
 		if (strncmp($line, '```', 3) === 0) {
@@ -274,7 +274,7 @@ You may use `$lines` and `$current` to check other lines than the current line. 
 Parsing of a block element is done in two steps:
 
 1. **Consuming** all the lines belonging to it. In most cases this is iterating over the lines starting from the identified
-   line until a blank line occurs. This step is implemented by a method named `consume{blockName}()` where `{blockName}`
+   line until a blank line occurs. This step is implemented by a method named `consume_{block_name}()` where `{block_name}`
    is the same name as used for the identify function above. The consume method also takes the lines array
    and the number of the current line. It will return two arguments: an array representing the block element in the abstract syntax tree
    of the markdown document and the line number to parse next. In the abstract syntax array the first element refers to the name of
@@ -282,11 +282,11 @@ Parsing of a block element is done in two steps:
    In our example we will implement it like this:
 
    ```php
-	protected function consume_Fenced_Code($lines, $current)
+	protected function consume_fenced_code($lines, $current)
 	{
 		// create block array
 		$block = [
-			'fencedCode',
+			'code',
 			'content' => [],
 		];
 		$line = rtrim($lines[$current]);
@@ -312,10 +312,10 @@ Parsing of a block element is done in two steps:
 	```
 
 2. **Rendering** the element. After all blocks have been consumed, they are being rendered using the
-   `render{elementName}()`-method where `elementName` refers to the name of the element in the abstract syntax tree:
+   `render_{element_name}()`-method where `element_name` refers to the name of the element in the abstract syntax tree:
 
    ```php
-	protected function renderFencedCode($block)
+	protected function render_code($block)
 	{
 		$class = isset($block['language']) ? ' class="language-' . $block['language'] . '"' : '';
 		return "<pre><code$class>" . htmlspecialchars(implode("\n", $block['content']) . "\n", ENT_NOQUOTES, 'UTF-8') . '</code></pre>';
@@ -345,19 +345,19 @@ As an example, we will add support for the [strikethrough][] feature of github f
 ```php
 <?php
 
-class MyMarkdown extends \cebe\markdown\Markdown
+class My_Markdown extends \cebe\markdown\Markdown
 {
 	/**
 	 * @marker ~~
 	 */
-	protected function parse_Strike($markdown)
+	protected function parse_strike($markdown)
 	{
 		// check whether the marker really represents a strikethrough (i.e. there is a closing ~~)
 		if (preg_match('/^~~(.+?)~~/', $markdown, $matches)) {
 			return [
-			    // return the parsed tag as an element of the abstract syntax tree and call `parse_Inline()` to allow
+			    // return the parsed tag as an element of the abstract syntax tree and call `parse_inline()` to allow
 			    // other inline markdown elements inside this tag
-				['strike', $this->parse_Inline($matches[1])],
+				['strike', $this->parse_inline($matches[1])],
 				// return the offset of the parsed text
 				strlen($matches[0])
 			];
@@ -367,9 +367,9 @@ class MyMarkdown extends \cebe\markdown\Markdown
 	}
 
 	// rendering is the same as for block elements, we turn the abstract syntax array into a string.
-	protected function render_Strike($element)
+	protected function render_strike($element)
 	{
-		return '<del>' . $this->render_Absy($element[1]) . '</del>';
+		return '<del>' . $this->render_absy($element[1]) . '</del>';
 	}
 }
 ```
@@ -399,24 +399,24 @@ extend your class from `Parser`.
 The following shows the trait selection for traditional Markdown.
 
 ```php
-class MyMarkdown extends Parser
+class My_Markdown extends Parser
 {
 	// include block element parsing using traits
 	use block\Code_Trait;
 	use block\Headline_Trait;
 	use block\Html_Trait {
-		parse_Inline_Html as private;
+		parse_inline_html as private;
 	}
 	use block\List_Trait {
 		// Check Ul List before headline
-		identify_Ul as protected identify_B_Ul;
-		consume_Ul as protected consume_B_Ul;
+		identify_ul as protected identify_b_ul;
+		consume_ul as protected consume_b_ul;
 	}
 	use block\Quote_Trait;
 	use block\Rule_Trait {
 		// Check Hr before checking lists
-		identify_Hr as protected identify_A_Hr;
-		consume_Hr as protected consume_A_Hr;
+		identify_hr as protected identify_a_hr;
+		consume_hr as protected consume_a_hr;
 	}
 	// include inline element parsing using traits
 	use inline\Code_Trait;
@@ -442,12 +442,12 @@ class MyMarkdown extends Parser
 In general, just adding the trait with `use` is enough, however in some cases some fine tuning is desired
 to get most expected parsing results. Elements are detected in alphabetical order of their identification
 function. This means that if a line starting with `-` could be a list or a horizontal rule, the preference has to be set
-by renaming the identification function. This is what is done with renaming `identify_Hr` to `identify_A_Hr`
-and `identify_B_Ul` to `identify_B_Ul`. The consume function always has to have the same name as the identification function
+by renaming the identification function. This is what is done with renaming `identify_hr` to `identify_a_hr`
+and `identify_b_ul` to `identify_b_ul`. The consume function always has to have the same name as the identification function
 so this has to be renamed too.
 
 There is also a conflict for parsing of the `<` character. This could either be a link/email enclosed in `<` and `>`
-or an inline HTML tag. In order to resolve this conflict when adding the `Link_Trait`, we need to hide the `parse_Inline_Html`
+or an inline HTML tag. In order to resolve this conflict when adding the `Link_Trait`, we need to hide the `parse_inline_html`
 method of the `Html_Trait`.
 
 If you use any trait that uses the `$html5` property to adjust its output you also need to define this property.
@@ -467,7 +467,7 @@ as is.
 	 * backslash, the character will be outputted without the backslash and is not interpreted
 	 * as markdown.
 	 */
-	protected $escape_Characters = [
+	protected $escape_characters = [
 		'\\', // backslash
 		'`', // backtick
 		'*', // asterisk
@@ -487,7 +487,7 @@ as is.
 #### Add custom rendering behavior
 
 Optionally you may also want to adjust rendering behavior by overriding some methods.
-You may refer to the `consume_Paragraph()` method of the `Markdown` and `Github_Markdown` classes for some inspiration
+You may refer to the `consume_paragraph()` method of the `Markdown` and `Github_Markdown` classes for some inspiration
 which define different rules for which elements are allowed to interrupt a paragraph.
 
 

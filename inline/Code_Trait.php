@@ -16,13 +16,13 @@ trait Code_Trait
      * Parses an inline code span `` ` ``.
      * @marker `
      */
-    protected function parse_Inline_Code($text)
+    protected function parse_inline_code($text)
     {
         if (preg_match('/^(``+)\s(.+?)\s\1/s', $text, $matches)) {
             // code with enclosed backtick
             return [
                 [
-                    'inline_Code',
+                    'inline_code',
                     $matches[2],
                 ],
                 strlen($matches[0]),
@@ -31,7 +31,7 @@ trait Code_Trait
         if (preg_match('/^`(.+?)`/s', $text, $matches)) {
             return [
                 [
-                    'inline_Code',
+                    'inline_code',
                     $matches[1],
                 ],
                 strlen($matches[0]),
@@ -40,7 +40,7 @@ trait Code_Trait
         return [['text', $text[0]], 1];
     }
 
-    protected function render_Inline_Code($block)
+    protected function render_inline_code($block)
     {
         return '<code>' . htmlspecialchars($block[1], ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</code>';
     }
