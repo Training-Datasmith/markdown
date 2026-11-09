@@ -4,3 +4,4 @@ composer.lock
 README.html
 .phpunit.result.cache
 .system-test/
+__pycache__/
